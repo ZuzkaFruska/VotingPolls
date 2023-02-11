@@ -1,0 +1,98 @@
+﻿@model VotingPollCreateVM
+
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="container col-7">
+    
+    <h2>Create a new Voting Poll</h2>
+    <hr />
+    
+    <form asp-action="CreatePOST" class="g-3">
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div class="col-12">
+            <label asp-for="Name" class="form-label">Voting poll name</label>
+            <input type="text" asp-for="Name" class="form-control" />
+            <span asp-validation-for="Name" class="text-danger"></span>
+        </div>
+        
+        <div class="col-12">
+            <label asp-for="Question" class="form-label"></label>
+            <input type="text" asp-for="Question" class="form-control" />
+            <span asp-validation-for="Question" class="text-danger"></span>
+        </div>
+        <br/>
+
+       
+        @for (int i = 0; i < Model.Answers.Count; i++)
+        {
+            <div class="col-md-12">
+                <label asp-for="Answers[i].Text" class="form-label mb-1">Answer @(i + 1)</label>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-9">
+                    <input type="text" asp-for="Answers[i].Text" class="form-control" />
+                    <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
+                    <input type="hidden" asp-for="Answers[i].DateModified"/>
+                    <input type="hidden" asp-for="Answers[i].DateCreated"/>
+                </div>
+
+                <div class="d-grid col-3">
+                    <input asp-action="AddRemoveAnswer" asp-route-answerNo="@(i)" class="btn btn-danger" type="submit" value="Remove answer" />
+                </div>
+            </div>
+        }
+
+        
+
+        <input type="submit" asp-action="AddRemoveAnswer" class="btn btn-light mt-2" value="Add Answer" />
+        <br/><br/>
+
+        <div class="form-group">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="MultipleChoice" /> Multiple choice answers allowed
+                </label>
+            </div>
+        </div>
+        
+        
+        <div class="form-group">
+            <div class="form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="AdditionalAnswers" /> Users can add new answers
+                </label>
+            </div>
+        </div>
+
+        <br/>
+        
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-outline-primary" />
+            <a asp-action="Index" class="btn btn-outline-dark">Back to List</a>
+        </div>
+    </form>
+</div>
+    
+
+
+
+
+
+@* @if (Model == null)
+        {*@
+@*}else
+        {
+            @for (int i = 0; i < Model.Answers.Count; i++)
+            {
+                    <div class="form-group">
+                        <label asp-for="Answers[i].Text" class="control-label">Answer @(i + 1)</label>
+                        <input asp-for="Answers[i].Text" class="form-control mb-2" />
+                                <input type="hidden" asp-for="Answers[i].DateModified"/>
+                                <input type="hidden" asp-for="Answers[i].DateCreated"/>
+                        <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
+                    </div>
+            }  
+        }*@

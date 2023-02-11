@@ -1,5 +1,7 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using VotingPolls.Configurations;
 using VotingPolls.Data;
 
 namespace VotingPolls
@@ -16,9 +18,15 @@ namespace VotingPolls
                 options.UseSqlServer(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            builder.Services.AddDefaultIdentity<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+            //builder.Services.AddScoped<AutoMapper>
+
+            builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
+
+            builder.Services.AddAutoMapper(typeof(MapperConfig));
+
             builder.Services.AddControllersWithViews();
+
 
             var app = builder.Build();
 
@@ -45,7 +53,7 @@ namespace VotingPolls
                 name: "default",
                 pattern: "{controller=Home}/{action=Index}/{id?}");
             app.MapRazorPages();
-
+            
             app.Run();
         }
     }
