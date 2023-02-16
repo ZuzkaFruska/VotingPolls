@@ -37,13 +37,14 @@
                 }
             }
         </div>
-        <input type="submit" asp-action="Vote" value="Vote" class="btn btn-primary ms-2"/>
-        <a asp-action="Index" class="btn btn-dark ms-2">Back to List</a>
+
         <input type="hidden" asp-for="UserId"/>
-        @*<input type="hidden" asp-for="Id"/>*@
         <input type="hidden" asp-for="VotingPoll.Id"/>
         <input type="hidden" asp-for="VotingPoll.MultipleChoice"/>
-        <input type="hidden" asp-for="VotingPoll.Id"/>
+
+        <input type="submit" asp-action="Vote" value="Vote" class="btn btn-primary ms-2"/>
+        <a asp-action="Index" class="btn btn-dark ms-2">Back to List</a>
+        
         
     </form>
 </div>

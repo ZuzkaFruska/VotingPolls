@@ -2,7 +2,9 @@ using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VotingPolls.Configurations;
+using VotingPolls.Contracts;
 using VotingPolls.Data;
+using VotingPolls.Repositories;
 
 namespace VotingPolls
 {
@@ -24,6 +26,8 @@ namespace VotingPolls
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
             builder.Services.AddAutoMapper(typeof(MapperConfig));
+            builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+            builder.Services.AddScoped<IVotingPollRepository, VotingPollRepository>();
 
             builder.Services.AddControllersWithViews();
 

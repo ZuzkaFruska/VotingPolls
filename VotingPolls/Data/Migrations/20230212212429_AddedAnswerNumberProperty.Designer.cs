@@ -12,8 +12,8 @@ using VotingPolls.Data;
 namespace VotingPolls.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230207162738_RemovedListOfAnswerVotes")]
-    partial class RemovedListOfAnswerVotes
+    [Migration("20230212212429_AddedAnswerNumberProperty")]
+    partial class AddedAnswerNumberProperty
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,6 +176,9 @@ namespace VotingPolls.Data.Migrations
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -287,9 +290,11 @@ namespace VotingPolls.Data.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("AnswerId");
+
                     b.HasIndex("VotingPollId");
 
-                    b.ToTable("Vote");
+                    b.ToTable("Votes");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.VotingPoll", b =>
@@ -391,6 +396,12 @@ namespace VotingPolls.Data.Migrations
 
             modelBuilder.Entity("VotingPolls.Data.Vote", b =>
                 {
+                    b.HasOne("VotingPolls.Data.Answer", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("VotingPolls.Data.VotingPoll", null)
                         .WithMany("Votes")
                         .HasForeignKey("VotingPollId")
@@ -407,6 +418,11 @@ namespace VotingPolls.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VotingPolls.Data.Answer", b =>
+                {
+                    b.Navigation("Votes");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.VotingPoll", b =>

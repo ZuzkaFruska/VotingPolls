@@ -13,8 +13,8 @@ namespace VotingPolls.Data
         public List<Vote> Votes { get; set; }
 
 
-        [ForeignKey("OwnerId")]
+        [ForeignKey("UserId")]
         public User User { get; set; }
-        public string OwnerId { get; set; }
+        public string UserId { get; set; }
     }
 }

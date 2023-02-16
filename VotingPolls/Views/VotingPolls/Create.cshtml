@@ -1,4 +1,5 @@
-﻿@model VotingPollCreateVM
+﻿@using Microsoft.AspNetCore.Identity
+@model VotingPollCreateVM
 
 @{
     ViewData["Title"] = "Create";
@@ -8,8 +9,9 @@
     <h2>Create a new Voting Poll</h2>
     <hr />
     
-    <form asp-action="CreatePOST" class="g-3">
+    <form asp-action="Create" class="g-3">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        <input type="hidden" asp-for="UserId" />
 
         <div class="col-12">
             <label asp-for="Name" class="form-label">Voting poll name</label>
@@ -35,8 +37,10 @@
                 <div class="col-9">
                     <input type="text" asp-for="Answers[i].Text" class="form-control" />
                     <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
-                    <input type="hidden" asp-for="Answers[i].DateModified"/>
-                    <input type="hidden" asp-for="Answers[i].DateCreated"/>
+                    <input type="hidden" asp-for="Answers[i].DateModified" value="@DateTime.Now" />
+                    <input type="hidden" asp-for="Answers[i].DateCreated" value="@DateTime.Now" />
+                    <input type="hidden" asp-for="Answers[i].Number" value="@i" />
+                    <input type="hidden" asp-for="Answers[i].UserId" value="@Model.UserId"/>
                 </div>
 
                 <div class="d-grid col-3">
@@ -44,8 +48,6 @@
                 </div>
             </div>
         }
-
-        
 
         <input type="submit" asp-action="AddRemoveAnswer" class="btn btn-light mt-2" value="Add Answer" />
         <br/><br/>
@@ -75,24 +77,3 @@
         </div>
     </form>
 </div>
-    
-
-
-
-
-
-@* @if (Model == null)
-        {*@
-@*}else
-        {
-            @for (int i = 0; i < Model.Answers.Count; i++)
-            {
-                    <div class="form-group">
-                        <label asp-for="Answers[i].Text" class="control-label">Answer @(i + 1)</label>
-                        <input asp-for="Answers[i].Text" class="form-control mb-2" />
-                                <input type="hidden" asp-for="Answers[i].DateModified"/>
-                                <input type="hidden" asp-for="Answers[i].DateCreated"/>
-                        <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
-                    </div>
-            }  
-        }*@

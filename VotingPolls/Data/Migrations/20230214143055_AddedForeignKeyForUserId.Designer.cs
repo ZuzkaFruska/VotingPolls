@@ -12,8 +12,8 @@ using VotingPolls.Data;
 namespace VotingPolls.Data.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230207200540_WhereIsMyVoteTable")]
-    partial class WhereIsMyVoteTable
+    [Migration("20230214143055_AddedForeignKeyForUserId")]
+    partial class AddedForeignKeyForUserId
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,7 +176,14 @@ namespace VotingPolls.Data.Migrations
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
                     b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
@@ -280,12 +287,16 @@ namespace VotingPolls.Data.Migrations
 
                     b.Property<string>("UserId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("VotingPollId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AnswerId");
+
+                    b.HasIndex("UserId");
 
                     b.HasIndex("VotingPollId");
 
@@ -316,17 +327,17 @@ namespace VotingPolls.Data.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("OwnerId")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<string>("Question")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<string>("UserId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.HasKey("Id");
 
-                    b.HasIndex("OwnerId");
+                    b.HasIndex("UserId");
 
                     b.ToTable("VotingPolls");
                 });
@@ -391,22 +402,41 @@ namespace VotingPolls.Data.Migrations
 
             modelBuilder.Entity("VotingPolls.Data.Vote", b =>
                 {
+                    b.HasOne("VotingPolls.Data.Answer", null)
+                        .WithMany("Votes")
+                        .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VotingPolls.Data.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("VotingPolls.Data.VotingPoll", null)
                         .WithMany("Votes")
                         .HasForeignKey("VotingPollId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.VotingPoll", b =>
                 {
                     b.HasOne("VotingPolls.Data.User", "User")
                         .WithMany()
-                        .HasForeignKey("OwnerId")
+                        .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("User");
+                });
+
+            modelBuilder.Entity("VotingPolls.Data.Answer", b =>
+                {
+                    b.Navigation("Votes");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.VotingPoll", b =>

@@ -11,21 +11,29 @@ using VotingPolls.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.IdentityModel.Tokens;
+using VotingPolls.Contracts;
+using VotingPolls.Extensions;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 
 namespace VotingPolls.Controllers
 {
+    [Authorize]
     public class VotingPollsController : Controller
     {
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
+        private readonly IVotingPollRepository _votingPollRepository;
         private readonly UserManager<User> _userManager;
 
         public VotingPollsController(ApplicationDbContext context,
                                      IMapper mapper,
+                                     IVotingPollRepository votingPollRepository,
                                      UserManager<User> userManager)
         {
             _context = context;
             this._mapper = mapper;
+            this._votingPollRepository = votingPollRepository;
             this._userManager = userManager;
         }
 
@@ -46,20 +54,19 @@ namespace VotingPolls.Controllers
             
             
             var votingPoll = await _context.VotingPolls.FirstOrDefaultAsync(q => q.Id == id);
-            //.Include(v => v.User)
 
             if (votingPoll == null)
             {
                 return NotFound();
             }
 
-
             var model = new VoteVM() { VotingPoll = votingPoll};
-
+             
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
             model.UserId = currentUser.Id;
             model.VotingPoll.Answers = await _context.Answers.Where(q => q.VotingPollId == votingPoll.Id).ToListAsync(); // bez sensu ;/
 
+            
             return View(model);
         }
 
@@ -106,131 +113,67 @@ namespace VotingPolls.Controllers
         }
 
         // GET: VotingPolls/Create
-        public IActionResult Create() //VotingPollCreateVM votingPollCreateVM
+        public async Task<IActionResult> Create()
         {
-             var model = new VotingPollCreateVM();
+            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            if (TempData.IsNullOrEmpty())
+            {
+                var model = new VotingPollCreateVM();
+                model.UserId = currentUser.Id;
                 model.Answers = new List<Answer>();
+                model.Answers.AddRange(new List<Answer>()
 
-                if (TempData.IsNullOrEmpty())
-                {
-                    model.Answers.AddRange(new List<Answer>()
                 {
                     new Answer {Text=""},
                     new Answer {Text=""}
                 });
-                    return View(model);
-                }
-
-                if (TempData["Name"] is not null)
-                    model.Name = TempData["Name"].ToString();
-
-                if (TempData["Question"] is not null)
-                    model.Question = TempData["Question"].ToString();
-
-                model.MultipleChoice = Convert.ToBoolean(TempData[nameof(model.MultipleChoice)].ToString());
-                model.AdditionalAnswers = Convert.ToBoolean(TempData[nameof(model.AdditionalAnswers)].ToString());
-
-
-
-                for (int i = 0; i < (int)TempData[nameof(model.Answers.Count)]; i++)
-                {
-                    if (TempData[$"Answer{i}"] == null)
-                    {
-                        model.Answers.Add(new Answer { Text = "" });
-                    }
-                    else
-                    {
-                        model.Answers.Add(new Answer { Text = TempData[$"Answer{i}"].ToString() });
-                    }
-                }
-
                 return View(model);
-            
-        }
-
-        
-
-        [HttpPost]
-        public IActionResult AddRemoveAnswer(VotingPollCreateVM votingPollCreateVM, int? answerNo)
-        {
-            var answers = new List<string>();
-            foreach (var answer in votingPollCreateVM.Answers)
-            {
-                answers.Add(answer.Text);
-            }
-
-
-            if (answerNo.HasValue)
-            {
-                if (answers.Count > 2)
-                    answers.Remove(answers[answerNo.Value]);
-                //else warning answers < 2
-                
             }
             else
             {
-                answers.Add("");
-            }
-
-            TempData[nameof(votingPollCreateVM.Name)] = votingPollCreateVM.Name;
-            TempData[nameof(votingPollCreateVM.Question)] = votingPollCreateVM.Question;
-            TempData[nameof(votingPollCreateVM.MultipleChoice)] = votingPollCreateVM.MultipleChoice;
-            TempData[nameof(votingPollCreateVM.AdditionalAnswers)] = votingPollCreateVM.AdditionalAnswers;
-            TempData[nameof(votingPollCreateVM.Answers.Count)] = answers.Count;
-
-            for (int i = 0; i < answers.Count; i++)
-            {
-                TempData[$"Answer{i}"] = answers[i];
-            }
-            return RedirectToAction(nameof(Create));
-
-
-
-
-
-
-
-
-
-            //var inputFields = new List<string>()
-            //{
-            //    votingPollCreateVM.Name,
-            //    votingPollCreateVM.Question,
-            //    votingPollCreateVM.MultipleChoice.ToString(),
-            //    votingPollCreateVM.AdditionalAnswers.ToString()
-            //};
-
-            //foreach (var answer in votingPollCreateVM.Answers)
-            //{
-            //    inputFields.Add(answer.Text);
-            //}
-
-            //if (answerNo.HasValue)
-            //{
-            //    inputFields.Remove(inputFields[answerNo.Value + 3]);
-            //}
-            //else
-            //{
-            //    inputFields.Add(" ");
-            //}
-
-            ////var dict = new RouteValueDictionary(inputFields);
-            //return RedirectToAction(nameof(Create), new { inputFields = inputFields } ) ;
+                var model = _mapper.Map<VotingPollCreateVM>(TempData.Get<VotingPoll>(nameof(VotingPoll)));
+                //model.UserId = currentUser.Id;
+                return View(model);
+            } // model.UserId przypisać do odpowiedzi, spr. gdzie 
         }
 
 
-        // POST: VotingPolls/CreatePOST
+        [HttpPost]
+        public IActionResult AddRemoveAnswerAsync(VotingPollCreateVM votingPollCreateVM, int? answerNo)
+        {
+            var votingPoll = _mapper.Map<VotingPoll>(votingPollCreateVM);
+            
+            if (answerNo.HasValue)
+            {
+                if (votingPoll.Answers.Count > 2)
+                {
+                    var ans = votingPoll.Answers.Find(q => q.Number == answerNo.Value);
+                    votingPoll.Answers.Remove(ans);
+                }
+                //else warning can't have < 2 answers
+            }
+            else
+            {
+                votingPoll.Answers.Add(new Answer { Text = "" });
+            }
+
+            TempData.Clear();
+            TempData.Put(nameof(VotingPoll), votingPoll);
+            
+            return RedirectToAction(nameof(Create));
+        }
+
+
+        // POST: VotingPolls/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
         // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreatePOST(VotingPollCreateVM votingPollCreateVM)
+        public async Task<IActionResult> Create(VotingPollCreateVM votingPollCreateVM)
         {
             if (ModelState.IsValid)
             {
                 var votingPoll = _mapper.Map<VotingPoll>(votingPollCreateVM);
-                var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-                votingPoll.OwnerId = currentUser.Id;
                 votingPoll.DateCreated = DateTime.Now;
                 votingPoll.DateModified = DateTime.Now;
                 _context.Add(votingPoll);
@@ -258,7 +201,7 @@ namespace VotingPolls.Controllers
             {
                 return NotFound();
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.OwnerId);
+            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.UserId);
             return View(votingPoll);
         }
 
@@ -296,7 +239,7 @@ namespace VotingPolls.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.OwnerId);
+            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.UserId);
             return View(votingPoll);
         }
 
