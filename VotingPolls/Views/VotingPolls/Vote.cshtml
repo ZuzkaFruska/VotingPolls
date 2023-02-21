@@ -7,10 +7,12 @@
 
 <div class="container col-sm-7 mb-3">
     <form asp-action="Vote">
+        
         <div class="card m-2">
             <div class="card-body">
                 <h3 class="card-title">@Model.VotingPoll.Name</h3>
                 <p class="card-subtitle">@Model.VotingPoll.Question</p>
+                <span asp-validation-for="UserAnswers" validationme class="text-danger"></span>
             </div>
             @{
                 if (Model.VotingPoll.MultipleChoice)
@@ -30,17 +32,15 @@
                     foreach (var answer in Model.VotingPoll.Answers)
                     {
                         <div class="form-check m-2 mb-3" >
-                            <input type="radio" asp-for="UserAnswer" value="@answer.Id" class="form-check-input mt-2" id="@answer.Id">
+                            <input type="radio" asp-for="UserAnswers" value="@answer.Id" class="form-check-input mt-2" id="@answer.Id">
                             <label type="text" class="form-control" for="@answer.Id">@answer.Text</label>
                         </div>
                     }
                 }
             }
         </div>
-
         <input type="hidden" asp-for="UserId"/>
         <input type="hidden" asp-for="VotingPoll.Id"/>
-        <input type="hidden" asp-for="VotingPoll.MultipleChoice"/>
 
         <input type="submit" asp-action="Vote" value="Vote" class="btn btn-primary ms-2"/>
         <a asp-action="Index" class="btn btn-dark ms-2">Back to List</a>

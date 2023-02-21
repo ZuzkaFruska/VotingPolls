@@ -15,6 +15,7 @@ using VotingPolls.Contracts;
 using VotingPolls.Extensions;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace VotingPolls.Controllers
 {
@@ -24,25 +25,36 @@ namespace VotingPolls.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IMapper _mapper;
         private readonly IVotingPollRepository _votingPollRepository;
+        private readonly IVoteRepository _voteRepository;
         private readonly UserManager<User> _userManager;
 
         public VotingPollsController(ApplicationDbContext context,
                                      IMapper mapper,
                                      IVotingPollRepository votingPollRepository,
+                                     IVoteRepository voteRepository,
                                      UserManager<User> userManager)
         {
             _context = context;
             this._mapper = mapper;
             this._votingPollRepository = votingPollRepository;
+            this._voteRepository = voteRepository;
             this._userManager = userManager;
         }
 
         // GET: VotingPolls
         public async Task<IActionResult> Index()
         {
-            var model = _mapper.Map<List<VotingPollListVM>>(await _context.VotingPolls.ToListAsync()); //.Include(q=>q.User)
+            var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetAllAsync());
             return View(model);
         }
+
+        public async Task<IActionResult> MyPolls()
+        {
+            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetUserPolls(currentUser.Id));
+            return View(model);
+        }
+
 
         // GET: VotingPolls/Details/5
         public async Task<IActionResult> Vote(int? id)
@@ -52,64 +64,49 @@ namespace VotingPolls.Controllers
                 return NotFound();
             }
             
-            
-            var votingPoll = await _context.VotingPolls.FirstOrDefaultAsync(q => q.Id == id);
+            var votingPoll = await _votingPollRepository.GetAsync(id);
 
             if (votingPoll == null)
             {
                 return NotFound();
             }
 
-            var model = new VoteVM() { VotingPoll = votingPoll};
-             
+            var model = new VoteVM() { VotingPoll = votingPoll };
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
             model.UserId = currentUser.Id;
-            model.VotingPoll.Answers = await _context.Answers.Where(q => q.VotingPollId == votingPoll.Id).ToListAsync(); // bez sensu ;/
-
-            
             return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Vote(VoteVM voteVM) //async Task<IActionResult>
+        public async Task<IActionResult> Vote(VoteVM voteVM) 
         {
+            voteVM.VotingPoll = await _votingPollRepository.GetAsync(voteVM.VotingPoll.Id);
+            foreach (var key in ModelState.Keys.ToList().Where(key => key.Contains("VotingPoll")))
+            {
+                ModelState[key].ValidationState = ModelValidationState.Valid;
+            }
+
             if (ModelState.IsValid)
             {
-
-            }
-
-            if (voteVM.VotingPoll.MultipleChoice)
-            {
-                var votes = new List<Vote>();
-                foreach (var answer in voteVM.UserAnswers)
-                {
-                    votes.Add(new Vote
+                    var votes = new List<Vote>();
+                    foreach (var answer in voteVM.UserAnswers)
                     {
-                        UserId = voteVM.UserId,
-                        VotingPollId = voteVM.VotingPoll.Id,
-                        AnswerId = answer,
-                        DateCreated = DateTime.Now,
-                        DateModified = DateTime.Now
-                    });
-                }
-                await _context.Votes.AddRangeAsync(votes);
-                _context.SaveChanges();
+                        votes.Add(new Vote
+                        {
+                            UserId = voteVM.UserId,
+                            VotingPollId = voteVM.VotingPoll.Id,
+                            AnswerId = answer,
+                            DateCreated = DateTime.Now,
+                            DateModified = DateTime.Now
+                        });
+                    }
+                    await _voteRepository.AddRangeAsync(votes);
+
+                return RedirectToAction(nameof(Results), new { votingPollId = voteVM.VotingPoll.Id });
             }
-            else
-            {
-                var vote = new Vote()
-                {
-                    UserId = voteVM.UserId,
-                    VotingPollId = voteVM.VotingPoll.Id,
-                    AnswerId = voteVM.UserAnswer,
-                    DateCreated = DateTime.Now,
-                    DateModified = DateTime.Now
-                };
-                await _context.Votes.AddAsync(vote);
-                _context.SaveChanges();
-            }
-            return RedirectToAction(nameof(Index));
+
+            return View(voteVM);
         }
 
         // GET: VotingPolls/Create
@@ -132,9 +129,26 @@ namespace VotingPolls.Controllers
             else
             {
                 var model = _mapper.Map<VotingPollCreateVM>(TempData.Get<VotingPoll>(nameof(VotingPoll)));
-                //model.UserId = currentUser.Id;
                 return View(model);
-            } // model.UserId przypisać do odpowiedzi, spr. gdzie 
+            } 
+        }
+
+
+        // POST: VotingPolls/Create
+        // To protect from overposting attacks, enable the specific properties you want to bind to.
+        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Create(VotingPollCreateVM votingPollCreateVM)
+        {
+            if (ModelState.IsValid)
+            {
+                var votingPoll = _mapper.Map<VotingPoll>(votingPollCreateVM);
+                await _votingPollRepository.AddAsync(votingPoll);
+                return RedirectToAction(nameof(Index));
+            }
+
+            return View(votingPollCreateVM);
         }
 
 
@@ -164,26 +178,42 @@ namespace VotingPolls.Controllers
         }
 
 
-        // POST: VotingPolls/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(VotingPollCreateVM votingPollCreateVM)
+        public async Task<IActionResult> Results(int votingPollId)
         {
-            if (ModelState.IsValid)
-            {
-                var votingPoll = _mapper.Map<VotingPoll>(votingPollCreateVM);
-                votingPoll.DateCreated = DateTime.Now;
-                votingPoll.DateModified = DateTime.Now;
-                _context.Add(votingPoll);
-                await _context.SaveChangesAsync();
+            var model = new ResultsVM();
+            model.VotingPoll = await _votingPollRepository.GetAsync(votingPollId);
 
-                return RedirectToAction(nameof(Index));
-            }
+            model.VotingPoll.Answers = model.VotingPoll.Answers.OrderByDescending(a => a.Votes.Count).ToList();
 
-            return View(votingPollCreateVM);
+            return View(model);
+            
         }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -204,8 +234,6 @@ namespace VotingPolls.Controllers
             ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.UserId);
             return View(votingPoll);
         }
-
-        
 
         // POST: VotingPolls/Edit/5
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -287,18 +315,3 @@ namespace VotingPolls.Controllers
         }
     }
 }
-
-
-
-
-
-
-//var dictModel = new RouteValueDictionary(votingPollCreateVM);
-//var dictAnswers = new RouteValueDictionary();
-
-//for (int i = 0; i < votingPollCreateVM.Answers.Count; i++)
-//{
-//    dictAnswers.Add($"Answers{i}.Text", votingPollCreateVM.Answers[i].Text);
-//}
-
-//return RedirectToAction(nameof(Create), new { votingPollCreateVM = dictModel/*, answers = dictAnswers*/});

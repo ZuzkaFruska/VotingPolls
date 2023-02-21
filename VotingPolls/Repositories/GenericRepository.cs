@@ -4,7 +4,7 @@ using VotingPolls.Data;
 
 namespace VotingPolls.Repositories
 {
-    public class GenericRepository<T> : IGenericRepository<T> where T : class
+    public class GenericRepository<T> : IGenericRepository<T> where T : BaseEntity
     {
         private readonly ApplicationDbContext _context;
 
@@ -14,6 +14,8 @@ namespace VotingPolls.Repositories
         }
         public async Task AddAsync(T entity)
         {
+            entity.DateCreated = DateTime.Now;
+            entity.DateModified  = DateTime.Now;
             await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
@@ -42,7 +44,7 @@ namespace VotingPolls.Repositories
             return await _context.Set<T>().ToListAsync();
         }
 
-        public async Task<T?> GetAsync(int? id)
+        public virtual async Task<T?> GetAsync(int? id)
         {
             if (id == null)
                 return null;

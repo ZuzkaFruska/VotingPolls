@@ -10,7 +10,7 @@ namespace VotingPolls.Data
         public bool MultipleChoice { get; set; }
         public bool AdditionalAnswers { get; set; }
         public List<Answer> Answers { get; set; }
-        public List<Vote> Votes { get; set; }
+        public List<Vote>? Votes { get; set; }
 
 
         [ForeignKey("UserId")]

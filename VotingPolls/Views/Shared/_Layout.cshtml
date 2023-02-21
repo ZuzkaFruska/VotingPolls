@@ -38,6 +38,9 @@
                                 <li><a asp-controller="VotingPolls" asp-action="Create" class="dropdown-item nav-link text-dark">
                                     <i class="bi bi-plus-square"></i> &nbsp; New poll</i></a>
                                 </li>
+                                <li><a asp-controller="VotingPolls" asp-action="MyPolls" class="dropdown-item nav-link text-dark">
+                                    &nbsp; My polls</i></a>
+                                </li>
                                 @*<li><a asp-controller="VotingPolls" asp-action="Index" class="dropdown-item nav-link text-dark">My polls</a></li>*@
                             </ul>
                         </li>
@@ -60,7 +63,9 @@
             &copy; 2023 - VotingPolls - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>*@
     </footer>
+    
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/popper.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)

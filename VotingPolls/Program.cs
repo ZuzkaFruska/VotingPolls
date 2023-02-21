@@ -25,9 +25,11 @@ namespace VotingPolls
             builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
-            builder.Services.AddAutoMapper(typeof(MapperConfig));
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IVotingPollRepository, VotingPollRepository>();
+            builder.Services.AddScoped<IVoteRepository, VoteRepository>();
+
+            builder.Services.AddAutoMapper(typeof(MapperConfig));
 
             builder.Services.AddControllersWithViews();
 

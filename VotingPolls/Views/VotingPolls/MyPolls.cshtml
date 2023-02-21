@@ -1,0 +1,29 @@
+﻿@model IEnumerable<VotingPollListVM>
+
+@{
+    ViewData["Title"] = "My Polls";
+}
+
+<div class="text-center">
+    <h1>My Voting Polls</h1>
+</div>
+
+<p>
+    <a asp-action="Create" class="btn btn-success">Create a new poll!</a>
+</p>
+
+
+<div class="row">
+    @foreach (var votingPoll in @Model)
+    {
+          <div class="col-sm-4 mb-3">
+            <div class="card border-2 border-dark">
+              <div class="card-body">
+                <h5 class="card-title">@votingPoll.Name</h5>
+                <p class="card-text">@votingPoll.Question</p>
+                <a asp-action="Vote" asp-route-id="@votingPoll.Id" class="btn btn-outline-primary border-2">Vote!</a>
+              </div>
+            </div>
+          </div>
+    }
+</div>

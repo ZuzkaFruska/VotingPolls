@@ -1,0 +1,68 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model ResultsVM
+@inject UserManager<User> UserManager
+
+@{
+    ViewData["Title"] = "Results";
+}
+
+<div class="text-center">
+    <h1>Results for @Model.VotingPoll.Name</h1>
+</div>
+<br/>
+
+<div class="container col-8">
+    
+    @foreach (var answer in Model.VotingPoll.Answers)
+    {
+            <div class="row"> @*align-items-center*@
+            <div class="col-10">
+                <div class="card border-dark mb-4">
+                    <div class="card-header bg-white border-dark" style="height: 40px">
+                        <h5 class="text mb-3">@answer.Text</h5>
+                    </div>
+                    <div class="card-body p-2">
+                            @if (answer.Votes.Count > 0)
+                            {
+                                <div class="progress" style="height: 30px">
+                                    <div class="progress-bar bg-secondary"
+                                    style="width: @(answer.Votes.Count*100/Model.VotingPoll.Votes.Count)%; font-weight:500; font-size:1.25rem;">
+                                        @answer.Votes.Count
+                                    </div>
+                                </div>
+                            }else
+                            {
+                                <div class="progress" style="height: 30px" > 
+                                    <div class="progress-bar bg-transparent"
+                                    style="width: 4%; font-weight:500; font-size:1.25rem">
+                                    0
+                                    </div>
+                                </div>
+                            }
+                    </div>
+                </div>
+            </div>
+            <div class="col-2">
+                <div class="dropdown">
+                    <button class="btn btn-secondary dropdown-toggle" 
+                            type="button"
+                            data-bs-toggle="dropdown"
+                            data-bs-auto-close="outside"
+                            style="height: 40px"
+                            aria-expanded="false">
+                        See Voters
+                    </button>
+                    <ul class="dropdown-menu">
+                        @foreach (var vote in answer.Votes)
+                        {
+                            <li class="dropdown-item">@vote.User.Firstname @vote.User.Lastname</li>
+                        }
+                    </ul>
+                </div>
+                    
+            </div>
+        </div>
+    }
+    
+</div>
+
