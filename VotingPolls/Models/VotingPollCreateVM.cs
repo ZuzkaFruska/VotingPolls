@@ -5,7 +5,7 @@ namespace VotingPolls.Models
 {
     public class VotingPollCreateVM
     {
-        public string UserId { get; set; }
+        public string OwnerId { get; set; }
         
         [Required]
         public string Name { get; set; }

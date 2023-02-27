@@ -9,11 +9,13 @@ namespace VotingPolls.Data
         public List<Vote>? Votes { get; set; }
 
 
-        [ForeignKey("VotingPollId")]
-        public int? VotingPollId { get; set; } // First the VotingPoll needs to be created before the Answer can have its Id
+        
+        public int VotingPollId { get; set; } // First the VotingPoll needs to be created before the Answer can have its Id
+        public VotingPoll? VotingPoll { get; set; }
 
 
-        [ForeignKey("UserId")]
-        public string UserId { get; set; }
+        
+        public string AuthorId { get; set; }
+        public User? Author { get; set; }
     }
 }

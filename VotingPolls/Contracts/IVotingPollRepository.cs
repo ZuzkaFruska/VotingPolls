@@ -6,5 +6,6 @@ namespace VotingPolls.Contracts
     public interface IVotingPollRepository : IGenericRepository<VotingPoll>
     {
         Task<List<VotingPoll>> GetUserPolls(string userId);
+        Task<VotingPoll?> GetWithAnswersAndVotesAsync(int? id);
     }
 }

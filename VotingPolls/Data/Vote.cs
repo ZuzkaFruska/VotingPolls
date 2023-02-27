@@ -4,16 +4,16 @@ namespace VotingPolls.Data
 {
     public class Vote : BaseEntity
     {
-        [ForeignKey("UserId")]
-        public User User { get; set; }
-        public string UserId { get; set; }
+        public string VoterId { get; set; }
+        public User Voter { get; set; }
 
 
-        [ForeignKey("VotingPollId")]
+
         public int VotingPollId { get; set; }
+        public VotingPoll VotingPoll { get; set; }
 
 
-        [ForeignKey("AnswerId")]
         public int AnswerId { get; set; }
+        public Answer Answer { get; set; }
     }
 }

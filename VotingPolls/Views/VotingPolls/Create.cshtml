@@ -11,7 +11,7 @@
     
     <form asp-action="Create" class="g-3">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-        <input type="hidden" asp-for="UserId" />
+        <input type="hidden" asp-for="OwnerId" />
 
         <div class="col-12">
             <label asp-for="Name" class="form-label">Voting poll name</label>
@@ -40,7 +40,7 @@
                     <input type="hidden" asp-for="Answers[i].DateModified" value="@DateTime.Now" />
                     <input type="hidden" asp-for="Answers[i].DateCreated" value="@DateTime.Now" />
                     <input type="hidden" asp-for="Answers[i].Number" value="@i" />
-                    <input type="hidden" asp-for="Answers[i].UserId" value="@Model.UserId"/>
+                    <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.OwnerId"/>
                 </div>
 
                 <div class="d-grid col-3">

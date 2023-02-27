@@ -1,4 +1,6 @@
-﻿namespace VotingPolls.Contracts
+﻿using VotingPolls.Data;
+
+namespace VotingPolls.Contracts
 {
     public interface IGenericRepository<T> where T: class
     {

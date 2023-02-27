@@ -7,7 +7,8 @@
 }
 
 <div class="text-center">
-    <h1>Results for @Model.VotingPoll.Name</h1>
+    <h3>Results for @Model.VotingPoll.Name</h3>
+    <h3>@Model.VotingPoll.Question</h3>
 </div>
 <br/>
 
@@ -55,7 +56,7 @@
                     <ul class="dropdown-menu">
                         @foreach (var vote in answer.Votes)
                         {
-                            <li class="dropdown-item">@vote.User.Firstname @vote.User.Lastname</li>
+                            <li class="dropdown-item">@vote.Voter.Firstname @vote.Voter.Lastname</li>
                         }
                     </ul>
                 </div>

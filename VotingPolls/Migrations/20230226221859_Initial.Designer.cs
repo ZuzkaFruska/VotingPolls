@@ -9,18 +9,18 @@ using VotingPolls.Data;
 
 #nullable disable
 
-namespace VotingPolls.Data.Migrations
+namespace VotingPolls.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20230207162524_MadeAnswerVotesNullable")]
-    partial class MadeAnswerVotesNullable
+    [Migration("20230226221859_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.2")
+                .HasAnnotation("ProductVersion", "7.0.3")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
@@ -170,20 +170,29 @@ namespace VotingPolls.Data.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<string>("AuthorId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<DateTime?>("DateCreated")
                         .HasColumnType("datetime2");
 
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
+                    b.Property<int>("Number")
+                        .HasColumnType("int");
+
                     b.Property<string>("Text")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int?>("VotingPollId")
+                    b.Property<int>("VotingPollId")
                         .HasColumnType("int");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("AuthorId");
 
                     b.HasIndex("VotingPollId");
 
@@ -278,9 +287,9 @@ namespace VotingPolls.Data.Migrations
                     b.Property<DateTime?>("DateModified")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("UserId")
+                    b.Property<string>("VoterId")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasColumnType("nvarchar(450)");
 
                     b.Property<int>("VotingPollId")
                         .HasColumnType("int");
@@ -289,9 +298,11 @@ namespace VotingPolls.Data.Migrations
 
                     b.HasIndex("AnswerId");
 
+                    b.HasIndex("VoterId");
+
                     b.HasIndex("VotingPollId");
 
-                    b.ToTable("Vote");
+                    b.ToTable("Votes");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.VotingPoll", b =>
@@ -386,35 +397,59 @@ namespace VotingPolls.Data.Migrations
 
             modelBuilder.Entity("VotingPolls.Data.Answer", b =>
                 {
-                    b.HasOne("VotingPolls.Data.VotingPoll", null)
+                    b.HasOne("VotingPolls.Data.User", "Author")
+                        .WithMany()
+                        .HasForeignKey("AuthorId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("VotingPolls.Data.VotingPoll", "VotingPoll")
                         .WithMany("Answers")
-                        .HasForeignKey("VotingPollId");
+                        .HasForeignKey("VotingPollId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.Navigation("Author");
+
+                    b.Navigation("VotingPoll");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.Vote", b =>
                 {
-                    b.HasOne("VotingPolls.Data.Answer", null)
+                    b.HasOne("VotingPolls.Data.Answer", "Answer")
                         .WithMany("Votes")
                         .HasForeignKey("AnswerId")
+                        .OnDelete(DeleteBehavior.ClientCascade)
+                        .IsRequired();
+
+                    b.HasOne("VotingPolls.Data.User", "Voter")
+                        .WithMany()
+                        .HasForeignKey("VoterId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("VotingPolls.Data.VotingPoll", null)
+                    b.HasOne("VotingPolls.Data.VotingPoll", "VotingPoll")
                         .WithMany("Votes")
                         .HasForeignKey("VotingPollId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.ClientCascade)
                         .IsRequired();
+
+                    b.Navigation("Answer");
+
+                    b.Navigation("Voter");
+
+                    b.Navigation("VotingPoll");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.VotingPoll", b =>
                 {
-                    b.HasOne("VotingPolls.Data.User", "User")
+                    b.HasOne("VotingPolls.Data.User", "Owner")
                         .WithMany()
                         .HasForeignKey("OwnerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("User");
+                    b.Navigation("Owner");
                 });
 
             modelBuilder.Entity("VotingPolls.Data.Answer", b =>

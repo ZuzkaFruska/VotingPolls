@@ -14,7 +14,7 @@ namespace VotingPolls.Data
 
 
         [ForeignKey("UserId")]
-        public User User { get; set; }
-        public string UserId { get; set; }
+        public string OwnerId { get; set; }
+        public User Owner { get; set; }
     }
 }

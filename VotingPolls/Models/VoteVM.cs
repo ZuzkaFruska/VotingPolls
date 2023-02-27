@@ -5,7 +5,7 @@ namespace VotingPolls.Models
 {
     public class VoteVM
     {
-        public VotingPoll VotingPoll { get; set; } // VotingPoll used only for GET, no need for POST
+        public VotingPoll? VotingPoll { get; set; } // VotingPoll used only for GET, no need for POST
         public string UserId { get; set; }          // User that votes
 
 

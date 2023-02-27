@@ -14,5 +14,31 @@ namespace VotingPolls.Data
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Vote> Votes { get; set; }
 
+
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder
+                .Entity<Answer>()
+                .HasOne(e => e.VotingPoll)
+                .WithMany(e => e.Answers)
+                .OnDelete(DeleteBehavior.ClientCascade);
+
+            builder
+                .Entity<Vote>()
+                .HasOne(e => e.Answer)
+                .WithMany(e => e.Votes)
+                .OnDelete(DeleteBehavior.ClientCascade);
+
+            builder
+                .Entity<Vote>()
+                .HasOne(e => e.VotingPoll)
+                .WithMany(e => e.Votes)
+                .OnDelete(DeleteBehavior.ClientCascade);
+        }
+
+
+
     }
 }

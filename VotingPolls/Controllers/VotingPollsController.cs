@@ -55,7 +55,6 @@ namespace VotingPolls.Controllers
             return View(model);
         }
 
-
         // GET: VotingPolls/Details/5
         public async Task<IActionResult> Vote(int? id)
         {
@@ -63,8 +62,8 @@ namespace VotingPolls.Controllers
             {
                 return NotFound();
             }
-            
-            var votingPoll = await _votingPollRepository.GetAsync(id);
+
+            var votingPoll = await _votingPollRepository.GetWithAnswersAndVotesAsync(id);
 
             if (votingPoll == null)
             {
@@ -81,7 +80,7 @@ namespace VotingPolls.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Vote(VoteVM voteVM) 
         {
-            voteVM.VotingPoll = await _votingPollRepository.GetAsync(voteVM.VotingPoll.Id);
+            voteVM.VotingPoll = await _votingPollRepository.GetWithAnswersAndVotesAsync(voteVM.VotingPoll.Id);
             foreach (var key in ModelState.Keys.ToList().Where(key => key.Contains("VotingPoll")))
             {
                 ModelState[key].ValidationState = ModelValidationState.Valid;
@@ -94,7 +93,7 @@ namespace VotingPolls.Controllers
                     {
                         votes.Add(new Vote
                         {
-                            UserId = voteVM.UserId,
+                            VoterId = voteVM.UserId,
                             VotingPollId = voteVM.VotingPoll.Id,
                             AnswerId = answer,
                             DateCreated = DateTime.Now,
@@ -116,7 +115,7 @@ namespace VotingPolls.Controllers
             if (TempData.IsNullOrEmpty())
             {
                 var model = new VotingPollCreateVM();
-                model.UserId = currentUser.Id;
+                model.OwnerId = currentUser.Id;
                 model.Answers = new List<Answer>();
                 model.Answers.AddRange(new List<Answer>()
 
@@ -132,7 +131,6 @@ namespace VotingPolls.Controllers
                 return View(model);
             } 
         }
-
 
         // POST: VotingPolls/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to.
@@ -150,7 +148,6 @@ namespace VotingPolls.Controllers
 
             return View(votingPollCreateVM);
         }
-
 
         [HttpPost]
         public IActionResult AddRemoveAnswerAsync(VotingPollCreateVM votingPollCreateVM, int? answerNo)
@@ -177,42 +174,16 @@ namespace VotingPolls.Controllers
             return RedirectToAction(nameof(Create));
         }
 
-
         public async Task<IActionResult> Results(int votingPollId)
         {
             var model = new ResultsVM();
-            model.VotingPoll = await _votingPollRepository.GetAsync(votingPollId);
+            model.VotingPoll = await _votingPollRepository.GetWithAnswersAndVotesAsync(votingPollId);
 
             model.VotingPoll.Answers = model.VotingPoll.Answers.OrderByDescending(a => a.Votes.Count).ToList();
 
             return View(model);
             
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -231,7 +202,7 @@ namespace VotingPolls.Controllers
             {
                 return NotFound();
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.UserId);
+            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.OwnerId);
             return View(votingPoll);
         }
 
@@ -267,9 +238,12 @@ namespace VotingPolls.Controllers
                 }
                 return RedirectToAction(nameof(Index));
             }
-            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.UserId);
+            ViewData["OwnerId"] = new SelectList(_context.Users, "Id", "Id", votingPoll.OwnerId);
             return View(votingPoll);
         }
+
+
+
 
         // GET: VotingPolls/Delete/5
         public async Task<IActionResult> Delete(int? id)
@@ -278,16 +252,10 @@ namespace VotingPolls.Controllers
             {
                 return NotFound();
             }
-
-            var votingPoll = await _context.VotingPolls
-                .Include(v => v.User)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (votingPoll == null)
-            {
-                return NotFound();
-            }
-
-            return View(votingPoll);
+            var model = new ResultsVM();
+            model.VotingPoll = await _votingPollRepository.GetWithAnswersAndVotesAsync(id);
+            model.VotingPoll.Answers = model.VotingPoll.Answers.OrderByDescending(a => a.Votes.Count).ToList();
+            return View(model);
         }
 
         // POST: VotingPolls/Delete/5
@@ -295,18 +263,10 @@ namespace VotingPolls.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            if (_context.VotingPolls == null)
-            {
-                return Problem("Entity set 'ApplicationDbContext.VotingPolls'  is null.");
-            }
-            var votingPoll = await _context.VotingPolls.FindAsync(id);
-            if (votingPoll != null)
-            {
-                _context.VotingPolls.Remove(votingPoll);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            var votingPoll = _votingPollRepository.GetWithAnswersAndVotesAsync(id); // entity must be loaded to avoid delete cascade exception
+            await _votingPollRepository.DeleteAsync(id);
+
+            return RedirectToAction(nameof(MyPolls));
         }
 
         private bool VotingPollExists(int id)
@@ -315,3 +275,26 @@ namespace VotingPolls.Controllers
         }
     }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//foreach (var key in ModelState.Keys.ToList().Where(key => key.Contains("VotingPollId")))
+//{
+//    ModelState[key].ValidationState = ModelValidationState.Valid;
+//} // Answer can't have VotingPollId before creating Voting Poll 
