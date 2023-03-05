@@ -8,43 +8,79 @@
 <div class="container col-sm-7 mb-3">
     <form asp-action="Vote">
         
-        <div class="card m-2">
+        <div class="card border-dark border-2 m-2">
             <div class="card-body">
                 <h3 class="card-title">@Model.VotingPoll.Name</h3>
                 <p class="card-subtitle">@Model.VotingPoll.Question</p>
-                <span asp-validation-for="UserAnswers" validationme class="text-danger"></span>
+                @*<span asp-validation-for="UserAnswers" class="text-danger"></span>*@
+                <div class="text-danger">@Html.ValidationMessageFor(m => m.UserAnswers)</div>
             </div>
-            @{
-                if (Model.VotingPoll.MultipleChoice)
-                {
-                    foreach (var answer in Model.VotingPoll.Answers)
-                    {
-                        //can't use non-boolean property in the asp-for attribute of an input tag helper,
-                        //Razor renders an input whose type is set to text,/
-                        //so you must use plain HTML to render checkboxes that enable binding to a simple collection
-                        <div class="form-check m-2 mb-3" >
-                            <input type="checkbox" name="UserAnswers" value="@answer.Id" class="form-check-input mt-2" id="@answer.Id"> 
-                            <label type="text" class="form-control" for="@answer.Id">@answer.Text</label>
-                        </div>
+            <div class="card-body">
+                @{
+                    if (Model.VotingPoll.MultipleChoice)
+                    { // multiple choice check buttons
+                        foreach (var answer in Model.VotingPoll.Answers)
+                        {
+                            if (answer.Votes.Any(v => v.VoterId == Model.VoterId)) 
+                            {//previous votes will be checked
+                                <input type="checkbox" class="btn-check" name="UserAnswers" value="@answer.Id" id="@answer.Id" checked="checked" autocomplete="off"> 
+                                <label class="btn btn-outline-dark text-start col-12 border-1 mb-2" for="@answer.Id">@answer.Text</label>
+                            }else
+                            {
+                                <input type="checkbox" class="btn-check" name="UserAnswers" value="@answer.Id" id="@answer.Id" autocomplete="off"> 
+                                <label class="btn btn-outline-dark text-start col-12 border-1 mb-2" for="@answer.Id">@answer.Text</label>
+                            }
+                            //"can't use non-boolean property in the asp-for attribute of an input tag helper,
+                            //Razor renders an input whose type is set to text,/
+                            //so you must use plain HTML to render checkboxes that enable binding to a simple collection"
+                        }
+                    }else
+                    {// single choice radio buttons
+                        foreach (var answer in Model.VotingPoll.Answers)
+                        {
+                            if (answer.Votes.Any(v => v.VoterId == Model.VoterId))
+                            {//previous votes will be checked
+                                <input type="radio" class="btn-check" asp-for="UserAnswers" value="@answer.Id" id="@answer.Id" checked="checked" autocomplete="off">
+                                <label class="btn btn-outline-dark text-start col-12 border-1 mb-2" for="@answer.Id">@answer.Text</label>
+                            }else
+                            {
+                                <input type="radio" class="btn-check" asp-for="UserAnswers" value="@answer.Id" id="@answer.Id" autocomplete="off">
+                                <label class="btn btn-outline-dark text-start col-12 border-1 mb-2" for="@answer.Id">@answer.Text</label>
+                            }
+                            
+                        }
                     }
-                }else
-                {
-                    foreach (var answer in Model.VotingPoll.Answers)
+
+                    if (Model.VotingPoll.AdditionalAnswers)
                     {
-                        <div class="form-check m-2 mb-3" >
-                            <input type="radio" asp-for="UserAnswers" value="@answer.Id" class="form-check-input mt-2" id="@answer.Id">
-                            <label type="text" class="form-control" for="@answer.Id">@answer.Text</label>
-                        </div>
+                        <input type="text" asp-for="NewAnswerValue" class="form-control mb-2 mt-3" placeholder="Type your own answer here" />
+                        <div class="text-danger">@Html.ValidationMessageFor(m=>m.NewAnswerValue)</div>
+                        <input type="submit" asp-action="AddOrRemoveAnswer_Vote" class="btn btn-outline-dark border-1" value="Add new answer" />
                     }
                 }
-            }
-        </div>
-        <input type="hidden" asp-for="UserId"/>
-        <input type="hidden" asp-for="VotingPoll.Id"/>
 
-        <input type="submit" asp-action="Vote" value="Vote" class="btn btn-primary ms-2"/>
-        <a asp-action="Index" class="btn btn-dark ms-2">Back to List</a>
+                
+            </div>
+        </div>
+
+        <input type="hidden" asp-for="VoterId"/>
+        <input type="hidden" asp-for="VotingPoll.Id"/>
+        <input type="hidden" asp-for="UserAlreadyVoted"/>
+        <input type="hidden" asp-for="Referer"/>
+
+        @if (Model.UserAlreadyVoted)
+        {
+            <input type="submit" asp-action="Vote" value="Change Vote" class="btn btn-outline-dark border-2 ms-2"/>
+            <a class="btn btn-outline-info border-2 ms-2" asp-action="Results" asp-route-referer="@Model.Referer" asp-route-votingPollId="@Model.VotingPoll.Id">Results</a>
+            <a class="btn btn-outline-danger border-2 ms-2" asp-action="DeleteUserPollVotes" asp-route-referer="@Model.Referer" asp-route-actionName="Vote" asp-route-votingPollId="@Model.VotingPoll.Id" >Delete my votes</a>
+        }else
+        {
+            <input type="submit" asp-action="Vote" value="Vote" class="btn btn-outline-dark border-2 ms-2"/>
+        }
         
+        <a href="@Model.Referer" class="btn btn-outline-secondary border-2 ms-2">Back to List</a>
+                
         
     </form>
+
 </div>

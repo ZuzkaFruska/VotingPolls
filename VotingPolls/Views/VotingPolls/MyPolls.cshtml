@@ -21,8 +21,10 @@
               <div class="card-body">
                 <h5 class="card-title">@votingPoll.Name</h5>
                 <p class="card-text">@votingPoll.Question</p>
-                <a asp-action="Vote" asp-route-id="@votingPoll.Id" class="btn btn-outline-primary border-2">Vote!</a>
-                <a asp-action="Delete" asp-route-id="@votingPoll.Id" class="btn btn-outline-danger border-2">Delete</a>
+                <a asp-action="Vote" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-dark border-2">Vote!</a>
+                <a asp-action="Results" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-info border-2">Results</a>
+                <a asp-action="Edit" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-warning border-2">Edit</a>
+                <a asp-action="Delete" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-danger border-2">Delete</a>
               </div>
             </div>
           </div>

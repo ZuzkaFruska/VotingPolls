@@ -15,7 +15,6 @@ namespace VotingPolls.Repositories
         public async Task AddAsync(T entity)
         {
             entity.DateCreated = DateTime.Now;
-            entity.DateModified  = DateTime.Now;
             await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
         }
@@ -26,11 +25,12 @@ namespace VotingPolls.Repositories
             await _context.SaveChangesAsync();
         }
 
-        public async Task DeleteAsync(int id)
+        public virtual async Task DeleteAsync(int id)
         {
             var entity = await GetAsync(id);
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
         }
 
         public async Task<bool> Exists(int id)
@@ -55,8 +55,14 @@ namespace VotingPolls.Repositories
        
         public async Task UpdateAsync(T entity)
         {
+            //if (_context.Entry(entity).State == EntityState.Modified)
+            //{
+            //    entity.DateModified = DateTime.Now;
+            //}
+            _context.ChangeTracker.Clear();
             _context.Update(entity);
             await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
         }
     }
 }

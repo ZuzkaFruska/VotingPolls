@@ -65,5 +65,17 @@
         </div>
     }
     
+    @if (Model.UserAlreadyVoted)
+    {
+        <a class="btn btn-outline-dark" asp-action="Vote" asp-route-votingPollId="@Model.VotingPoll.Id" asp-route-referer="@Model.Referer" >Change Vote</a>
+        <a class="btn btn-outline-secondary" href="@Model.Referer">Back to list</a>
+        <a class="btn btn-outline-danger" asp-action="DeleteUserPollVotes" asp-route-votingPollId="@Model.VotingPoll.Id" asp-route-actionName="Results" asp-route-referer="@Model.Referer" >Delete my votes</a>
+    }else
+    {
+        <a class="btn btn-outline-dark" asp-action="Vote" asp-route-votingPollId="@Model.VotingPoll.Id" asp-route-referer="@Model.Referer" >Vote</a>
+        <a class="btn btn-outline-secondary" href="@Model.Referer">Back to list</a>
+    }
+    
+    
 </div>
 

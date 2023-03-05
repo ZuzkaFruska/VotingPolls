@@ -11,6 +11,11 @@
     
     <form asp-action="Create" class="g-3">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+        @if (Model.NotEnoughAnswers)
+        {
+            <label class="text-danger">At least two answers are required to create a voting poll.</label>
+            <br/>
+        }
         <input type="hidden" asp-for="OwnerId" />
 
         <div class="col-12">
@@ -37,19 +42,18 @@
                 <div class="col-9">
                     <input type="text" asp-for="Answers[i].Text" class="form-control" />
                     <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
-                    <input type="hidden" asp-for="Answers[i].DateModified" value="@DateTime.Now" />
                     <input type="hidden" asp-for="Answers[i].DateCreated" value="@DateTime.Now" />
                     <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                     <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.OwnerId"/>
                 </div>
 
                 <div class="d-grid col-3">
-                    <input asp-action="AddRemoveAnswer" asp-route-answerNo="@(i)" class="btn btn-danger" type="submit" value="Remove answer" />
+                    <input asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Create" asp-route-answerNo="@(i)" class="btn btn-danger" type="submit" value="Remove answer" />
                 </div>
             </div>
         }
-
-        <input type="submit" asp-action="AddRemoveAnswer" class="btn btn-light mt-2" value="Add Answer" />
+        
+        <input type="submit" asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Create" class="btn btn-light mt-2" value="Add Answer" />
         <br/><br/>
 
         <div class="form-group">

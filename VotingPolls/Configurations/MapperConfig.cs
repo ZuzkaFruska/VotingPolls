@@ -11,6 +11,7 @@ namespace VotingPolls.Configurations
         {
             CreateMap<VotingPoll, VotingPollListVM>().ReverseMap();
             CreateMap<VotingPoll, VotingPollCreateVM>().ReverseMap();
+            CreateMap<VotingPoll, VotingPollEditVM>().ReverseMap();
             CreateMap<VotingPoll, VoteVM>().ReverseMap();
         }
     }

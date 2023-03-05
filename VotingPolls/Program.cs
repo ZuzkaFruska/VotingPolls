@@ -27,6 +27,7 @@ namespace VotingPolls
 
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IVotingPollRepository, VotingPollRepository>();
+            builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
             builder.Services.AddScoped<IVoteRepository, VoteRepository>();
 
             builder.Services.AddAutoMapper(typeof(MapperConfig));

@@ -1,12 +1,20 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Microsoft.AspNetCore.Components;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
 using VotingPolls.Data;
 
 namespace VotingPolls.Models
 {
     public class VoteVM
     {
-        public VotingPoll? VotingPoll { get; set; } // VotingPoll used only for GET, no need for POST
-        public string UserId { get; set; }          // User that votes
+        public VotingPoll? VotingPoll { get; set; }
+        public string VoterId { get; set; }          // User that votes
+        public bool UserAlreadyVoted { get; set; }
+
+        public string? NewAnswerValue { get; set; }
+        public string Referer { get; set; }
 
 
         [Required(ErrorMessage = "At least one answer is required.")]
