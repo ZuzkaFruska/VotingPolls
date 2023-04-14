@@ -4,12 +4,12 @@
 @{
     ViewData["Title"] = "Edit";
 }
-<div class="container col-7">
+<div class="container col-10 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
 
     <h2>Edit "@Model.Name"</h2>
     <hr />
 
-    <form asp-action="Edit" class="g-3">
+    <form asp-action="Edit">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         @if (Model.NotEnoughAnswers)
         {
@@ -21,17 +21,17 @@
         <input type="hidden" asp-for="Id" />
 
         <div class="col-12">
-            <label asp-for="Name" class="form-label">Voting poll name</label>
-            <input type="text" asp-for="Name" class="form-control" value="@Model.Name" />
+            <label asp-for="Name" class="form-label">Voting Poll Name</label>
+            <input type="text" asp-for="Name" class="form-control text-light bg-dark border-light border-2 mb-3" value="@Model.Name" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
 
         <div class="col-12">
-            <label asp-for="Question" class="form-label"></label>
-            <input type="text" asp-for="Question" class="form-control" value="@Model.Question" />
+            <label asp-for="Question" class="form-label">Voting Poll Question</label>
+            <input type="text" asp-for="Question" class="form-control text-light bg-dark border-light border-2" value="@Model.Question" />
             <span asp-validation-for="Question" class="text-danger"></span>
         </div>
-        <br/>
+        <br/><br/>
 
 
         @for (int i = 0; i < Model.Answers.Count; i++)
@@ -45,26 +45,24 @@
             <div class="row mb-2">
                 @if (Model.Answers[i].AuthorId == Model.CurrentUserId)
                 {
-                    <div class="col-9">
-                        <input type="text" asp-for="Answers[i].Text" class="form-control" value="@Model.Answers[i].Text" />
-                        <input type="hidden" asp-for="Answers[i].DateCreated" value="@DateTime.Now" />
+                    <div class="col-11">
+                        <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-dark border-light border-2" value="@Model.Answers[i].Text" />
                         <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                         <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.CurrentUserId"/>
                         <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
                     </div>
-                    <div class="d-grid col-3">
-                        <input asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="btn btn-danger" type="submit" value="Remove answer" />
+                    <div class="col-1">
+                                <button type="submit" asp-action="RemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="btn btn-outline-dark border-light border-2 float-end" style="color:lightgray">
+                            <i class="bi bi-trash3-fill"></i>
+                        </button>
                     </div>
                 }else
                 {
-                    <div class="col-9">
-                        <input type="text" asp-for="Answers[i].Text" class="form-control" value="@Model.Answers[i].Text" readonly/>
+                    <div class="col-11">
+                        <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-dark border-light border-2" value="@Model.Answers[i].Text" readonly/>
                         <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                         <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.Answers[i].AuthorId"/>
                         <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
-                    </div>
-                    <div class="d-grid col-3">
-                        <input asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="btn btn-danger" type="submit" value="Remove answer" disabled />
                     </div>
                 }
 
@@ -75,13 +73,15 @@
             </div>
         }
 
-        <input type="submit" asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Edit" class="btn btn-light mt-2" value="Add Answer" />
+        <button type="submit" asp-action="AddAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" class="btn btn-outline-dark border-light border-2 mt-2" style="color:lightgray">
+            <i class="bi bi-plus-lg"></i>
+        </button>
         <br/><br/>
 
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="MultipleChoice" /> Multiple choice answers allowed
+                    <input class="form-check-input border-light border-2 bg-transparent fw-bold" style="color:lightgray" asp-for="MultipleChoice" /> Multiple choice answers allowed
                 </label>
             </div>
         </div>
@@ -90,7 +90,7 @@
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AdditionalAnswers" /> Users can add new answers
+                    <input class="form-check-input border-light border-2 bg-transparent fw-bold" style="color:lightgray" asp-for="AdditionalAnswers" /> Users can add new answers
                 </label>
             </div>
         </div>
@@ -98,8 +98,12 @@
         <br/>
 
         <div class="form-group">
-            <input type="submit" value="Save changes" class="btn btn-outline-primary" />
-            <a asp-action="MyPolls" class="btn btn-outline-dark">Back to List</a>
+            <button type="submit" class="btn btn-outline-dark border-light border-2 fw-bold" style="color:lightgray">
+                <i class="bi bi-check-lg"></i> &nbsp; Save changes
+            </button>
+            <a asp-action="MyPolls" class="btn btn-outline-dark border-light border-2 fw-bold float-end" style="color:lightgray">
+                <i class="bi bi-arrow-return-left"></i> &nbsp; Back to List
+            </a>
         </div>
     </form>
 </div>

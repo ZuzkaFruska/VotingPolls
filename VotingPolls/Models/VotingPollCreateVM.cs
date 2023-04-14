@@ -1,5 +1,4 @@
-﻿using Microsoft.Build.Framework;
-using VotingPolls.Data;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace VotingPolls.Models
 {
@@ -7,10 +6,11 @@ namespace VotingPolls.Models
     {
         public string? OwnerId { get; set; } // nullable for Edit action Model.IsValid purposes
 
-        [Required]
+        [Required(ErrorMessage = "Poll name can't be empty!")]
         public string Name { get; set; }
 
-        [Required]
+
+        [Required(ErrorMessage = "Poll question can't be empty!")]
         public string Question { get; set; }
 
         public bool MultipleChoice { get; set; }
@@ -19,6 +19,6 @@ namespace VotingPolls.Models
         public bool NotEnoughAnswers { get; set; }
 
         [Required]
-        public List<Answer> Answers { get; set; }
+        public List<AnswerVM> Answers { get; set; }
     }
 }

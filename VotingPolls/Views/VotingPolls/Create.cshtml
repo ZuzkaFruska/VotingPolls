@@ -4,12 +4,11 @@
 @{
     ViewData["Title"] = "Create";
 }
-<div class="container col-7">
-    
-    <h2>Create a new Voting Poll</h2>
-    <hr />
-    
-    <form asp-action="Create" class="g-3">
+    <h2 class="container col-10 text-light">Create a new Voting Poll</h2>
+<br/>
+<div class="container col-10">
+<div class="container col-12 text-light custom-bg-gray-dark p-4 box-shadow-light-outset" >
+    <form asp-action="Create">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         @if (Model.NotEnoughAnswers)
         {
@@ -19,47 +18,51 @@
         <input type="hidden" asp-for="OwnerId" />
 
         <div class="col-12">
-            <label asp-for="Name" class="form-label">Voting poll name</label>
-            <input type="text" asp-for="Name" class="form-control" />
+            <input type="text" asp-for="Name" class="form-control text-light bg-dark border-light border-2 mb-1" placeholder="Voting Poll Name" />
             <span asp-validation-for="Name" class="text-danger"></span>
         </div>
         
         <div class="col-12">
-            <label asp-for="Question" class="form-label"></label>
-            <input type="text" asp-for="Question" class="form-control" />
+            <input type="text" asp-for="Question" class="form-control text-light bg-dark border-light border-2 mb-1 mt-2" placeholder="Voting Poll Question" />
             <span asp-validation-for="Question" class="text-danger"></span>
         </div>
         <br/>
 
-       
+       <h5 class="text-light">Answers:</h4>
         @for (int i = 0; i < Model.Answers.Count; i++)
         {
-            <div class="col-md-12">
+            @*<div class="col-md-12">
                 <label asp-for="Answers[i].Text" class="form-label mb-1">Answer @(i + 1)</label>
-            </div>
+            </div>*@
 
-            <div class="row mb-2">
-                <div class="col-9">
-                    <input type="text" asp-for="Answers[i].Text" class="form-control" />
-                    <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
+            <div class="row">
+                <div class="col-11">
+                    <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-dark border-light border-2 mb-1 mt-1" placeholder="Answer @(i+1)" />
                     <input type="hidden" asp-for="Answers[i].DateCreated" value="@DateTime.Now" />
                     <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                     <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.OwnerId"/>
                 </div>
-
-                <div class="d-grid col-3">
-                    <input asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Create" asp-route-answerNo="@(i)" class="btn btn-danger" type="submit" value="Remove answer" />
+                
+                <div class="col-1">
+                    <button type="submit" asp-action="RemoveAnswer_CreateEdit" asp-route-actionName="Create" asp-route-answerNo="@(i)" class="btn btn-outline-dark border-light border-2 mb-1 mt-1 float-end" style="color:lightgray">
+                        <i class="bi bi-trash3-fill"></i>
+                    </button>
                 </div>
+            </div>
+            <div class="row mb-2">
+                    <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
             </div>
         }
         
-        <input type="submit" asp-action="AddOrRemoveAnswer_CreateEdit" asp-route-actionName="Create" class="btn btn-light mt-2" value="Add Answer" />
+        <button type="submit" asp-action="AddAnswer_CreateEdit" asp-route-actionName="Create" class="btn btn-outline-dark border-light border-2 fw-bold mt-2" style="color:lightgray">
+            <i class="bi bi-plus-lg"></i>
+        </button>           
         <br/><br/>
 
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="MultipleChoice" /> Multiple choice answers allowed
+                    <input class="form-check-input bg-transparent border-2 border-light fw-bold" style="color:lightgray" asp-for="MultipleChoice" /> Multiple choice answers allowed
                 </label>
             </div>
         </div>
@@ -68,7 +71,7 @@
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input" asp-for="AdditionalAnswers" /> Users can add new answers
+                    <input class="form-check-input bg-transparent border-2 border-light fw-bold" style="color:lightgray" asp-for="AdditionalAnswers" /> Users can add new answers
                 </label>
             </div>
         </div>
@@ -76,8 +79,9 @@
         <br/>
         
         <div class="form-group">
-            <input type="submit" value="Create" class="btn btn-outline-primary" />
-            <a asp-action="Index" class="btn btn-outline-dark">Back to List</a>
+            <input type="submit" value="Create" class="btn btn-outline-dark border-light border-2 fw-bold" style="color:lightgray"/>
+            <a asp-action="Index" class="btn btn-outline-dark border-light border-2 fw-bold" style="color:lightgray">Back to List</a>
         </div>
     </form>
+</div>
 </div>

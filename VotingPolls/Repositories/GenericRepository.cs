@@ -14,19 +14,21 @@ namespace VotingPolls.Repositories
         }
         public async Task AddAsync(T entity)
         {
-            entity.DateCreated = DateTime.Now;
             await _context.AddAsync(entity);
             await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
         }
 
         public async Task AddRangeAsync(List<T> entities)
         {
             await _context.AddRangeAsync(entities);
             await _context.SaveChangesAsync();
+            _context.ChangeTracker.Clear();
         }
 
         public virtual async Task DeleteAsync(int id)
         {
+            _context.ChangeTracker.Clear();
             var entity = await GetAsync(id);
             _context.Set<T>().Remove(entity);
             await _context.SaveChangesAsync();
@@ -55,12 +57,9 @@ namespace VotingPolls.Repositories
        
         public async Task UpdateAsync(T entity)
         {
-            //if (_context.Entry(entity).State == EntityState.Modified)
-            //{
-            //    entity.DateModified = DateTime.Now;
-            //}
-            _context.ChangeTracker.Clear();
-            _context.Update(entity);
+            //_context.ChangeTracker.Clear();
+            //_context.Update(entity);
+            _context.Entry(entity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
             _context.ChangeTracker.Clear();
         }

@@ -25,6 +25,8 @@ namespace VotingPolls
             builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
 
+            builder.Services.AddHttpContextAccessor();
+
             builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
             builder.Services.AddScoped<IVotingPollRepository, VotingPollRepository>();
             builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
@@ -34,7 +36,7 @@ namespace VotingPolls
 
             builder.Services.AddControllersWithViews();
 
-
+            
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -53,7 +55,7 @@ namespace VotingPolls
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseAuthentication(); 
             app.UseAuthorization();
 
             app.MapControllerRoute(
@@ -64,4 +66,6 @@ namespace VotingPolls
             app.Run();
         }
     }
+
+    
 }

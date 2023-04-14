@@ -4,27 +4,36 @@
     ViewData["Title"] = "Index";
 }
 
-<div class="text-center">
+@*<div class="text-center">
     <h1>Voting Polls</h1>
 </div>
 
 <p>
     <a asp-action="Create" class="btn btn-success">Create your own poll!</a>
-</p>
+</p>*@
 
-
-<div class="row">
-    @foreach (var votingPoll in @Model)
-    {
-      <div class="col-sm-4 mb-3">
-        <div class="card border-2 border-dark">
-          <div class="card-body">
-            <h5 class="card-title">@votingPoll.Name</h5>
-            <p class="card-text">@votingPoll.Question</p>
-            <a asp-action="Vote" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-dark border-2">Vote!</a>
-            <a asp-action="Results" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-info border-2">Results</a>
-          </div>
+<div class="container col-12">
+    <div class="row">
+        @foreach (var votingPoll in @Model)
+        {
+        <div class="col-sm-4 mb-3">
+            <div class="card text-light custom-bg-gray-dark box-shadow-light-outset">
+                <div class="card-body">
+                    <h5 class="card-title">@votingPoll.Name</h5>
+                    <p class="card-text">@votingPoll.Question</p>   
+                        <a asp-action="Vote" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-dark border-light me-1" style="color:lightgray">
+                            <i class="bi bi-star-fill"></i> &nbsp; Vote!
+                        </a>
+                        <a asp-action="Results" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-dark border-light me-1" style="color:lightgray">
+                            <i class="bi bi-bar-chart-fill"></i> &nbsp; Results
+                        </a>
+                    
+                </div>
+                <div class="card-footer">
+                    <p class="card-text">Date Created: @votingPoll.DateCreated</p>
+                </div>
+            </div>
         </div>
-      </div>
-    }
+        }
+    </div>
 </div>

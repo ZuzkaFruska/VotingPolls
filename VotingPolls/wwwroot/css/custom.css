@@ -1,0 +1,29 @@
+﻿
+
+.box-shadow-light-outset {
+    box-shadow: 0rem 0rem 0.5rem 0.05rem gray;
+    /*rgba(0, 0, 0, 0)*/
+}
+
+.box-shadow-light-inset-outset {
+    box-shadow: 0 -0.5rem 0.5rem -0.5rem gray inset, 0rem 0.1rem 0.5rem gray;
+    /*rgba(0, 0, 0, 0)*/
+}
+
+.custom-bg-gray-dark {
+    --bg-opacity: 1.0;
+    --gray-dark: 52, 58, 64;
+    
+    background-color: rgba( var(--gray-dark), var(--bg-opacity) );
+    border-radius: 15px;
+}
+
+.custom-sidebar {
+    --bg-opacity: 1.0;
+    --gray-dark: 52, 58, 64;
+    background-color: rgba( var(--gray-dark), var(--bg-opacity) );
+}
+
+.btn-outline-gray-light {
+   
+}

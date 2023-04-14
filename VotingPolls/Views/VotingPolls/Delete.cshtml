@@ -1,77 +1,90 @@
-﻿@model ResultsVM
+﻿@using Microsoft.AspNetCore.Identity
+@model ResultsVM
+@inject UserManager<User> UserManager
 
 @{
     ViewData["Title"] = "Delete";
 }
 
 
-<div class="text-center">
-    <h2 class="text-danger">Are you sure you want to delete this voting poll and all the votes?</h2>
+
+<div class="container col-9 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
+    <div>
+        <h2 class="card-title">@Model.VotingPollVM.Name</h2>
+        <h3 class="card-subtitle">@Model.VotingPollVM.Question</h3>
+        <br/>
+    </div>
+    
+
     <br/>
-    <h2>@Model.VotingPoll.Name</h2>
-    <h2>@Model.VotingPoll.Question</h2>
-</div>
-
-<div class="container col-8">
-
-    @foreach (var answer in Model.VotingPoll.Answers)
+    @foreach (var answer in Model.VotingPollVM.Answers)
     {
-            <div class="row">
-            <div class="col-10">
-                <div class="card border-dark mb-4">
-                    <div class="card-header bg-white border-dark" style="height: 40px">
-                        <h5 class="text mb-3">@answer.Text</h5>
-                    </div>
-                    <div class="card-body p-2">
-                        @if (answer.Votes.Count > 0)
-                        {
-                                    <div class="progress" style="height: 30px">
-                                        <div class="progress-bar bg-secondary"
-                                style="width: @(answer.Votes.Count*100/Model.VotingPoll.Votes.Count)%; font-weight:500; font-size:1.25rem;">
-                                    @answer.Votes.Count
-                                        </div>
-                                    </div>
-                        }
-                        else
-                        {
-                                    <div class="progress" style="height: 30px" > 
-                                        <div class="progress-bar bg-transparent"
-                                style="width: 4%; font-weight:500; font-size:1.25rem">
-                                        0
-                                        </div>
-                                    </div>
-                        }
-                    </div>
-                </div>
+        string progressColor;
+        string progressStyle;
+        string progressText;
+        if (answer.Votes == null || Model.VotingPollVM.Votes.Count == 0)
+        {
+            progressColor = "bg-transparent";
+            progressStyle = null;
+            progressText = null;
+        }else
+        {
+            var progressValue = Convert.ToString(answer.Votes.Count*100/Model.VotingPollVM.Votes.Count);
+            progressColor = "bg-primary";
+            progressStyle= "width:" + progressValue + "%";
+            progressText = answer.Votes.Count*100/Model.VotingPollVM.Votes.Count + "%";
+        }
+
+        <div class="row">
+            <div class="col-10 mt-2">
+                <h5 class="text">@answer.Text</h5>
             </div>
             <div class="col-2">
-                <div class="dropdown">
-                    <button class="btn btn-secondary dropdown-toggle" 
+                <div class="dropdown float-end">
+                    <button class="btn btn-outline-dark border-light border-2 fw-bold dropdown-toggle" 
                         type="button"
                         data-bs-toggle="dropdown"
                         data-bs-auto-close="outside"
-                        style="height: 40px"
+                        style="color:lightgray"
                         aria-expanded="false">
-                        See Voters
+                    @answer.Votes.Count &nbsp; <i class="bi bi-people-fill"></i>
                     </button>
-                    <ul class="dropdown-menu">
-                        @foreach (var vote in answer.Votes)
-                        {
-                            <li class="dropdown-item">@vote.Voter.Firstname @vote.Voter.Lastname</li>
-                        }
+                    <ul class="dropdown-menu bg-dark text-light border-light border-2">
+                    @foreach (var vote in answer.Votes)
+                    {
+                        <li class="text-light ms-3">@vote.VoterDisplayName</li>
+                    }
                     </ul>
                 </div>
             </div>
         </div>
+        <div class="row mt-2 mb-4">
+            <div class="col-12">
+                <div class="col-12 mb-4 progress" style="height: 1.75rem; border-radius:15px">
+                    <div class="progress-bar @progressColor fw-bold" style="@progressStyle; font-size:1rem">
+                        @progressText
+                    </div>
+                </div>
+            </div>
+        </div>
     }
+    
+    <h3 class="text-danger text-center mb-3">Are you sure you want to delete</h3>
+    <h3 class="text-danger text-center mb-3">this voting poll and all the votes?</h3>
+    <br/>
 
+
+    <div class="row">
+        <div class="col">
+            <form asp-action="Delete">
+                <input class="btn w-100 btn-outline-danger border-2 border-light fw-bold" style="color:lightgray" asp-action="Delete" type="submit" asp-route-votingPollId="@Model.VotingPollVM.Id" value="Delete"/>
+            </form>
+        </div>
+        <div class="col-auto">
+            <a asp-controller="VotingPolls" asp-action="MyPolls" class="btn btn-outline-dark border-light float-end fw-bold border-2" style="color:lightgray"><i class="bi bi-arrow-return-left"></i> &nbsp; Back to List</a>
+        </div>
+    </div>
+    
+
+    
 </div>
-
-<div>
-    <form asp-action="Delete">
-        <input type="hidden" asp-route-votingPollId="@Model.VotingPoll.Id" />
-        <input type="submit" value="Delete" class="btn btn-outline-danger" />
-        <a asp-controller="VotingPolls" asp-action="MyPolls">Back to List</a>
-    </form>
-</div>
-

@@ -38,6 +38,21 @@ namespace VotingPolls.Data
                 .OnDelete(DeleteBehavior.ClientCascade);
         }
 
+        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var entry in base.ChangeTracker.Entries<BaseEntity>().Where(q => q.State == EntityState.Modified 
+                                                                                || q.State == EntityState.Added))
+            {
+                entry.Entity.DateModified = DateTime.Now;
+
+                if (entry.State == EntityState.Added)
+                {
+                    entry.Entity.DateCreated = DateTime.Now;
+                }
+            }
+            return base.SaveChangesAsync(cancellationToken);
+        }
+
 
 
     }

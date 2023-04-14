@@ -1,4 +1,4 @@
-﻿@model VoteVM
+﻿@model VotingVM
 
 
 @{
@@ -10,14 +10,14 @@
         
         <div class="card m-2">
             <div class="card-body">
-                <h3 class="card-title">@Model.VotingPoll.Name</h3>
-                <p class="card-subtitle">@Model.VotingPoll.Question</p>
+                <h3 class="card-title">@Model.VotingPollVM.Name</h3>
+                <p class="card-subtitle">@Model.VotingPollVM.Question</p>
                 <span asp-validation-for="UserAnswers" validationme class="text-danger"></span>
             </div>
             @{
-                if (Model.VotingPoll.MultipleChoice)
+                if (Model.VotingPollVM.MultipleChoice)
                 {
-                    foreach (var answer in Model.VotingPoll.Answers)
+                    foreach (var answer in Model.VotingPollVM.Answers)
                     {
                         //can't use non-boolean property in the asp-for attribute of an input tag helper,
                         //Razor renders an input whose type is set to text,/
@@ -29,7 +29,7 @@
                     }
                 }else
                 {
-                    foreach (var answer in Model.VotingPoll.Answers)
+                    foreach (var answer in Model.VotingPollVM.Answers)
                     {
                         <div class="form-check m-2 mb-3" >
                             <input type="radio" asp-for="UserAnswers" value="@answer.Id" class="form-check-input mt-2" id="@answer.Id">
@@ -40,7 +40,7 @@
             }
         </div>
         <input type="hidden" asp-for="VoterId"/>
-        <input type="hidden" asp-for="VotingPoll.Id"/>
+        <input type="hidden" asp-for="VotingPollVM.Id"/>
         <input type="hidden" asp-for="UserAlreadyVoted"/>
 
         @if (Model.UserAlreadyVoted)
