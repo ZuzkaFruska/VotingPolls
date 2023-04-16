@@ -66,10 +66,10 @@ namespace VotingPolls.Controllers
         [Authorize]
         public async Task<IActionResult> MyPolls(string? shareUrl)
         {
-            if (shareUrl != null)
-            {
-                ViewBag.Share = shareUrl;
-            }
+            //if (shareUrl != null)
+            //{
+            //    ViewBag.Share = shareUrl;
+            //}
             TempData.Clear();
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
             var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetUserPollsAsync(currentUser.Id));
@@ -114,13 +114,14 @@ namespace VotingPolls.Controllers
             return View(model);
         }
 
-        public async Task<IActionResult> Share(int votingPollId)
-        {
-            var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme);
-            TextCopy.ClipboardService.SetText(shareUrl);
 
-            return RedirectToAction(nameof(MyPolls), new { shareUrl = shareUrl });
-        }
+        //public async Task<IActionResult> Share(int votingPollId)
+        //{
+        //    var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme);
+        //    TextCopy.ClipboardService.SetText(shareUrl);
+
+        //    return RedirectToAction(nameof(MyPolls), new { shareUrl = shareUrl });
+        //}
 
 
         [HttpPost]

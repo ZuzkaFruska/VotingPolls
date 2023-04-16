@@ -1,6 +1,7 @@
 using AutoMapper;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using VotingPolls.Configurations;
 using VotingPolls.Contracts;
 using VotingPolls.Data;
@@ -15,14 +16,34 @@ namespace VotingPolls
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
-            var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
+
+            //var databaseUrl = Environment.GetEnvironmentVariable("postgres://crlqiosydnnjys:f56dfa62f05531c8764b06d4293ec5847698de3f8cbf95a485eb6e8e0e753117@ec2-34-241-82-91.eu-west-1.compute.amazonaws.com:5432/d38o15oirrllpg");
+            var databaseUri = new Uri("postgres://crlqiosydnnjys:f56dfa62f05531c8764b06d4293ec5847698de3f8cbf95a485eb6e8e0e753117@ec2-34-241-82-91.eu-west-1.compute.amazonaws.com:5432/d38o15oirrllpg");
+            var userInfo = databaseUri.UserInfo.Split(':');
+
+            var npgConnBuilder = new NpgsqlConnectionStringBuilder
+            {
+                Host = databaseUri.Host,
+                Port = databaseUri.Port,
+                Username = userInfo[0],
+                Password = userInfo[1],
+                Database = databaseUri.LocalPath.TrimStart('/'),
+                SslMode = SslMode.Require,
+                TrustServerCertificate = true
+            };
+
+            var connectionString = npgConnBuilder.ConnectionString;
+
+            //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
             //builder.Services.AddDbContext<ApplicationDbContext>(options =>
             //    options.UseSqlServer(connectionString));
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseNpgsql(connectionString));
             builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
-            //builder.Services.AddScoped<AutoMapper>
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+            AppContext.SetSwitch("Npgsql.DisableDateTimeInfinityConversions", true);
+
 
             builder.Services.AddDefaultIdentity<User>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
@@ -35,6 +56,7 @@ namespace VotingPolls
             builder.Services.AddScoped<IVoteRepository, VoteRepository>();
 
             builder.Services.AddAutoMapper(typeof(MapperConfig));
+
 
             builder.Services.AddControllersWithViews();
 
