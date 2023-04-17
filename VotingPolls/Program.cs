@@ -14,11 +14,13 @@ namespace VotingPolls
         public static void Main(string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
+            
 
             // Add services to the container.
 
-            //var databaseUrl = Environment.GetEnvironmentVariable("postgres://crlqiosydnnjys:f56dfa62f05531c8764b06d4293ec5847698de3f8cbf95a485eb6e8e0e753117@ec2-34-241-82-91.eu-west-1.compute.amazonaws.com:5432/d38o15oirrllpg");
-            var databaseUri = new Uri("postgres://crlqiosydnnjys:f56dfa62f05531c8764b06d4293ec5847698de3f8cbf95a485eb6e8e0e753117@ec2-34-241-82-91.eu-west-1.compute.amazonaws.com:5432/d38o15oirrllpg");
+            var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
+            var databaseUri = new Uri(databaseUrl);
+            // development: var databaseUri = new Uri("xxx");
             var userInfo = databaseUri.UserInfo.Split(':');
 
             var npgConnBuilder = new NpgsqlConnectionStringBuilder
