@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Components.Web;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace VotingPolls.Controllers
 {
@@ -148,7 +149,8 @@ namespace VotingPolls.Controllers
         
         public async Task<IActionResult> Share(int votingPollId) 
         {
-            var shareUrl = Url.Action(action: nameof(Vote), controller: nameof(VotingPolls), new { votingPollId = votingPollId }, protocol:Request.Scheme);
+            var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, "https"); // protocol:Request.Scheme
+            var test = Request.Scheme;
             TextCopy.ClipboardService.SetText(shareUrl);
             return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
         }
@@ -279,6 +281,12 @@ namespace VotingPolls.Controllers
                 var model = TempData.Get<VotingPollEditVM>(nameof(VotingPollCreateVM));
                 model.CurrentUserId = currentUser.Id;
                 model.Id = votingPollId;
+
+                foreach (var answer in model.Answers)
+                {
+                    answer.Author = await _userManager.FindByIdAsync(answer.AuthorId);
+                }
+
                 return View(model);
             }
             
@@ -304,6 +312,11 @@ namespace VotingPolls.Controllers
                 {
                     ModelState.AddModelError(string.Empty, "An Error Has Occured. Please, Try Again Later");
                 }
+            }
+
+            foreach (var answer in votingPollEditVM.Answers)
+            {
+                answer.Author = await _userManager.FindByIdAsync(answer.AuthorId);
             }
             return View(votingPollEditVM);
         }

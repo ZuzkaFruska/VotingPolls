@@ -45,6 +45,7 @@ namespace VotingPolls.Repositories
             foreach (var answer in votingPoll.Answers)
             {
                 answer.Votes =  await _context.Votes.Where(q => q.AnswerId == answer.Id).ToListAsync();
+                answer.Author = await _context.Users.FirstAsync(q => q.Id == answer.AuthorId);
             }
 
             return votingPoll;

@@ -20,6 +20,7 @@ namespace VotingPolls.Models
         public List<VoteVM>? Votes { get; set; } 
         public int VotingPollId { get; set; } // First the VotingPoll needs to be created before the Answer can have its Id
         public string AuthorId { get; set; }
+        public User? Author { get; set; } // only for Edit View, no need for Create View
 
     }
 }

@@ -3,10 +3,20 @@
 
 @{
     ViewData["Title"] = "Edit";
+    string canEditCaption;
+    if (Model.Votes != null && Model.Votes.Any(v => v.VoterId != Model.OwnerId))
+    {
+        canEditCaption = "Someone has already voted in this poll. You can't change the poll name or question.";
+    }else
+    {
+        canEditCaption = "";
+    }
+
 }
 <div class="container col-10 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
 
     <h2>Edit "@Model.Name"</h2>
+    <div class="text-danger">@canEditCaption</div>
     <hr />
 
     <form asp-action="Edit">
@@ -20,60 +30,106 @@
         <input type="hidden" asp-for="CurrentUserId" />
         <input type="hidden" asp-for="Id" />
 
-        <div class="col-12">
-            <label asp-for="Name" class="form-label">Voting Poll Name</label>
-            <input type="text" asp-for="Name" class="form-control text-light bg-dark border-light border-2 mb-3" value="@Model.Name" />
-            <span asp-validation-for="Name" class="text-danger"></span>
-        </div>
+        @if (Model.Votes != null && Model.Votes.Any(v => v.VoterId != Model.OwnerId))
+        {
+            <div class="col-12">
+                <label asp-for="Name" class="form-label">Voting Poll Name</label>
+                <input readonly type="text" asp-for="Name" class="form-control text-light bg-transparent border-light border-2 mb-1" value="@Model.Name"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+            <div class="col-12">
+                <label asp-for="Question" class="form-label mt-3">Voting Poll Question</label>
+                <input readonly type="text" asp-for="Question" class="form-control text-light bg-transparent border-light border-2" value="@Model.Question" />
+                    <span asp-validation-for="Question" class="text-danger"></span>
+            </div>
+        }else
+        {
+            <div class="col-12">
+                <label asp-for="Name" class="form-label">Voting Poll Name</label>
+                <input type="text" asp-for="Name" class="form-control text-light bg-transparent border-light border-2 mb-1" value="@Model.Name"/>
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
 
-        <div class="col-12">
-            <label asp-for="Question" class="form-label">Voting Poll Question</label>
-            <input type="text" asp-for="Question" class="form-control text-light bg-dark border-light border-2" value="@Model.Question" />
-            <span asp-validation-for="Question" class="text-danger"></span>
-        </div>
+            <div class="col-12">
+                <label asp-for="Question" class="form-label mt-3">Voting Poll Question</label>
+                <input type="text" asp-for="Question" class="form-control text-light bg-transparent border-light border-2" value="@Model.Question" />
+                    <span asp-validation-for="Question" class="text-danger"></span>
+            </div>
+        }
+        
         <br/><br/>
-
 
         @for (int i = 0; i < Model.Answers.Count; i++)
         {
-            
-            
-            <div class="col-md-12">
-                <label asp-for="Answers[i].Text" class="form-label mb-1">Answer @(i + 1)</label>
-            </div>
-
-            <div class="row mb-2">
-                @if (Model.Answers[i].AuthorId == Model.CurrentUserId)
+                if (Model.Answers[i].AuthorId == Model.CurrentUserId)
                 {
-                    <div class="col-11">
-                        <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-dark border-light border-2" value="@Model.Answers[i].Text" />
-                        <input type="hidden" asp-for="Answers[i].Number" value="@i" />
-                        <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.CurrentUserId"/>
-                        <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
-                    </div>
-                    <div class="col-1">
-                                <button type="submit" asp-action="RemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="btn btn-outline-dark border-light border-2 float-end" style="color:lightgray">
-                            <i class="bi bi-trash3-fill"></i>
-                        </button>
-                    </div>
+                    if (Model.Answers[i].Votes == null || !Model.Answers[i].Votes.Any(v => v.VoterId != Model.OwnerId))
+                    {
+                        <div class="row">
+                            <label asp-for="Answers[i].Text" class="form-label mb-1 mt-3">Answer @(i + 1)</label>
+                        </div>
+                        <div class="row">
+                            <div class="col-11">
+                                <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-transparent border-light border-2" value="@Model.Answers[i].Text" />
+                                <input type="hidden" asp-for="Answers[i].Number" value="@i" />
+                                <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.CurrentUserId"/>
+                                <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
+                            </div>
+                                <div class="col-1">
+                                    <button type="submit" asp-action="RemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="btn btn-outline-dark border-light border-2 float-end" style="color:lightgray">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </div>
+                        </div>
+                    }else
+                    {
+                        <div class="row">
+                            <div class="col-auto">
+                                <label asp-for="Answers[i].Text" class="form-label mb-1 mt-3">Answer @(i + 1)</label>
+                            </div>
+                            <div class="col">
+                                <div class="text-danger mt-3 mb-1">Someone has already voted for this answer, you can't edit it.</div>
+                            </div>
+                        </div>
+                        <div class="row mb-2">
+                            <div class="col-11">
+                                <input readonly type="text" asp-for="Answers[i].Text" class="form-control text-light bg-transparent border-light border-2" value="@Model.Answers[i].Text" />
+                                <input type="hidden" asp-for="Answers[i].Number" value="@i" />
+                                <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.CurrentUserId"/>
+                                <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
+                            </div>
+                        </div>
+                    }
+                        
                 }else
                 {
-                    <div class="col-11">
-                        <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-dark border-light border-2" value="@Model.Answers[i].Text" readonly/>
-                        <input type="hidden" asp-for="Answers[i].Number" value="@i" />
-                        <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.Answers[i].AuthorId"/>
-                        <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
+                    <div class="col-md-12">
+                        <div class="row">
+                            <div class="col-auto">
+                                <label asp-for="Answers[i].Text" class="form-label mb-1 mt-3">Answer @(i + 1)</label>
+                            </div>
+                            <div class="col">
+                                    <div class="text mb-1 mt-3">(Added by @Model.Answers[i].Author.Firstname @Model.Answers[i].Author.Lastname)</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-11">
+                            <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-transparent border-light border-2" value="@Model.Answers[i].Text" readonly/>
+                            <input type="hidden" asp-for="Answers[i].Number" value="@i" />
+                            <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.Answers[i].AuthorId"/>
+                            <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
+                        </div>
                     </div>
                 }
 
-            </div>
 
             <div class="col-md-12">
                 <span asp-validation-for="Answers[i].Text" class="text-danger"></span>
             </div>
         }
 
-        <button type="submit" asp-action="AddAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" class="btn btn-outline-dark border-light border-2 mt-2" style="color:lightgray">
+        <button type="submit" asp-action="AddAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" class="btn btn-outline-dark border-light border-2 mt-3" style="color:lightgray">
             <i class="bi bi-plus-lg"></i>
         </button>
         <br/><br/>
