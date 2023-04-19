@@ -8,7 +8,7 @@ namespace VotingPolls.Models
         public int Id { get; set; }
         public string Name { get; set; }
         public string Question { get; set; }
-
+        public User Owner { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
         [DataType(DataType.Date)]

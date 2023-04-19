@@ -16,6 +16,22 @@
     <link rel="stylesheet" href="/css/custom.css" />
 
 </head>
+
+@{
+    string controllerName;
+    string actionName;
+
+    if (SignInManager.IsSignedIn(User))
+    {
+        controllerName = "VotingPolls";
+        actionName = "MyPolls";
+    }else
+    {
+        controllerName = "Home";
+        actionName = "Index";
+    }
+}
+
 <body class="bg-dark">
     <header>
         <nav class="navbar navbar-dark navbar-expand-sm text-light mb-3 box-shadow-light-inset-outset"> @**@
@@ -23,7 +39,7 @@
                 <div class="col-6">
                         <div class="navbar-nav">
                             <div class="nav-item col-5">
-                                <a class="nav-link" asp-controller="Home" asp-action="Index">
+                                <a class="nav-link" asp-controller="@controllerName" asp-action="@actionName">
                                     <h2 class="fw-bold text-light">Voting Polls</h2></a>
                             </div>
                             <div class="nav-item">

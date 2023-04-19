@@ -13,6 +13,7 @@ namespace VotingPolls.Data
         public DbSet<VotingPoll> VotingPolls { get; set; }
         public DbSet<Answer> Answers { get; set; }
         public DbSet<Vote> Votes { get; set; }
+        public DbSet<VotingPollUser> VotingPollsUsers { get; set; }
 
 
         protected override void OnModelCreating(ModelBuilder builder)

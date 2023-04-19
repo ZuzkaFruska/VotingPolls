@@ -64,7 +64,7 @@ namespace VotingPolls.Controllers
 
 
         [Authorize]
-        public async Task<IActionResult> MyPolls(string? shareUrl)
+        public async Task<IActionResult> MyPolls()
         {
             //if (shareUrl != null)
             //{
@@ -77,13 +77,45 @@ namespace VotingPolls.Controllers
             return View(model);
         }
 
-
-        // GET: VotingPolls/Details/5
-        public async Task<IActionResult> Vote(int votingPollId)
+        public async Task<IActionResult> SharedPolls()
         {
-            var model = await _voteRepository.GetVotingDetails(votingPollId);
+            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            var userSharedPolls = await _context.VotingPolls.Join(
+                                                                    _context.VotingPollsUsers.Where(q => q.UserId == currentUser.Id),
+                                                                    vp => vp.Id,
+                                                                    vpu => vpu.VotingPollId,
+                                                                    (vp, vpu) => new VotingPoll
+                                                                    {
+                                                                        Id = vp.Id,
+                                                                        Name = vp.Name,
+                                                                        Question = vp.Question,
+                                                                        DateCreated = vp.DateCreated,
+                                                                        Owner= vp.Owner
+                                                                    }).ToListAsync();
+            var model = _mapper.Map<List<VotingPollListVM>>(userSharedPolls);
+            _context.ChangeTracker.Clear();
             return View(model);
         }
+
+
+            // GET: VotingPolls/Details/5
+            public async Task<IActionResult> Vote(int votingPollId)
+            {
+                var model = await _voteRepository.GetVotingDetails(votingPollId);
+
+                var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+                if (!_context.VotingPollsUsers.Any(q => q.UserId == currentUser.Id && q.VotingPollId == votingPollId)
+                    && currentUser.Id != model.VotingPollVM.OwnerId)
+                {
+                    await _context.VotingPollsUsers.AddAsync(new VotingPollUser
+                    {
+                        UserId = currentUser.Id,
+                        VotingPollId = votingPollId
+                    });
+                    await _context.SaveChangesAsync();
+                }
+                return View(model);
+            }
 
         
         [HttpPost]
@@ -113,15 +145,13 @@ namespace VotingPolls.Controllers
             model.VotingPollVM = _mapper.Map<VotingPollVM>( await _votingPollRepository.GetPollWithAnswersAndVotesAsync(model.VotingPollVM.Id) );
             return View(model);
         }
-
-
-        //public async Task<IActionResult> Share(int votingPollId)
-        //{
-        //    var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme);
-        //    TextCopy.ClipboardService.SetText(shareUrl);
-
-        //    return RedirectToAction(nameof(MyPolls), new { shareUrl = shareUrl });
-        //}
+        
+        public async Task<IActionResult> Share(int votingPollId) 
+        {
+            var shareUrl = Url.Action(action: nameof(Vote), controller: nameof(VotingPolls), new { votingPollId = votingPollId }, protocol:Request.Scheme);
+            TextCopy.ClipboardService.SetText(shareUrl);
+            return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
+        }
 
 
         [HttpPost]
@@ -231,6 +261,11 @@ namespace VotingPolls.Controllers
         {
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
 
+            if (!_context.VotingPolls.Any(q => q.Id == votingPollId && q.OwnerId == currentUser.Id))
+            {
+                return RedirectToAction(nameof(NotAuthorized));
+            }
+
             if (TempData.IsNullOrEmpty()) 
             {
                 var votingPoll = await _votingPollRepository.GetPollWithAnswersAndVotesAsync(votingPollId);
@@ -278,6 +313,13 @@ namespace VotingPolls.Controllers
         [Authorize]
         public async Task<IActionResult> Delete(int votingPollId)
         {
+            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+
+            if (!_context.VotingPolls.Any(q => q.Id == votingPollId && q.OwnerId == currentUser.Id))
+            {
+                return RedirectToAction(nameof(NotAuthorized));
+            }
+
             var model = await _votingPollRepository.GetVotingResults(votingPollId);
             return View(model);
         }
@@ -289,8 +331,15 @@ namespace VotingPolls.Controllers
         public async Task<IActionResult> DeleteConfirmed(int votingPollId)
         {
             await _votingPollRepository.DeleteAsync(votingPollId);
-            return RedirectToAction(nameof(MyPolls));
+            return RedirectToAction(nameof(NotAuthorized));
         }
+
+        public IActionResult NotAuthorized()
+        {
+            return View();
+        }
+
+
     }
 }
 

@@ -10,7 +10,7 @@
     <div class="col-auto">
         <div class="row">
             <div class="col-auto align-self-end">
-                <a  class="nav-link text-light fw-bold" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @currentUser.Firstname @currentUser.Lastname!</a>
+                <a  class="nav-link text-light fw-bold" href="" title="Manage">Hello @currentUser.Firstname @currentUser.Lastname!</a> @*asp-area="Identity" asp-page="/Account/Manage/Index"*@
             </div>
             <div class="col-auto align-self-end">
                 <form  class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
