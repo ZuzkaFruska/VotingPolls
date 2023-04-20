@@ -8,13 +8,14 @@
     var buttonValue = Model.UserAlreadyVoted ? "Change Vote" : "Vote";
 }
 
-<div class="container col-9 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
+<div class="container col-10 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
     <form asp-action="Vote" asp-controller="VotingPolls">
-        <div class="mb-4">
-            <h2 class="card-title">@Model.VotingPollVM.Name</h3>
-            <h3 class="card-subtitle">@Model.VotingPollVM.Question</h3>
+        <div>
+            <h3 class="card-title">@Model.VotingPollVM.Name</h3>
+            <h3 class="card-subtitle fw-normal">@Model.VotingPollVM.Question</h3>
             <span asp-validation-for="UserAnswers" class="text-danger"></span>
         </div>
+        <br/>
         <div>
         @{
             foreach (var answer in Model.VotingPollVM.Answers)

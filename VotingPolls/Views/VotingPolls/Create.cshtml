@@ -4,10 +4,9 @@
 @{
     ViewData["Title"] = "Create";
 }
-<h2 class="container col-10 text-light">Create a new Voting Poll</h2>
-<br/>
-<div class="container col-10">
-<div class="container col-12 text-light custom-bg-gray-dark p-4 box-shadow-light-outset" >
+<div class="container col-10 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
+    <h2>Create a new poll</h2>
+    <hr/>
     <form asp-action="Create">
         <div asp-validation-summary="ModelOnly" class="text-danger"></div>
         @if (Model.NotEnoughAnswers)
@@ -83,5 +82,4 @@
             <a asp-action="MyPolls" class="btn btn-outline-dark border-light border-2 fw-bold" style="color:lightgray">Back to List</a>
         </div>
     </form>
-</div>
 </div>

@@ -8,11 +8,10 @@
 
 
 
-<div class="container col-9 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
+<div class="container col-10 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
     <div>
-        <h2 class="card-title">@Model.VotingPollVM.Name</h2>
-        <h3 class="card-subtitle">@Model.VotingPollVM.Question</h3>
-        <br/>
+        <h3 class="card-title">@Model.VotingPollVM.Name</h3>
+        <h3 class="card-subtitle fw-normal">@Model.VotingPollVM.Question</h3>
     </div>
     <br/>
     @foreach (var answer in Model.VotingPollVM.Answers)

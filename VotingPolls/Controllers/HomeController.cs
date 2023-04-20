@@ -24,7 +24,17 @@ namespace VotingPolls.Controllers
             TempData.Clear();
             return View();
         }
+        public IActionResult ContactUs()
+        {
+            TempData.Clear();
+            return View();
+        }
 
+        public IActionResult Bonus()
+        {
+            TempData.Clear();
+            return View();
+        }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error(string errorValue)

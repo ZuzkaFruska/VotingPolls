@@ -57,6 +57,7 @@ namespace VotingPolls.Repositories
        
         public async Task UpdateAsync(T entity)
         {
+            _context.ChangeTracker.Clear();
             //_context.ChangeTracker.Clear();
             //_context.Update(entity);
             _context.Entry(entity).State = EntityState.Modified;
