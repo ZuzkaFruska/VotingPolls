@@ -16,13 +16,13 @@ namespace VotingPolls
             var builder = WebApplication.CreateBuilder(args);
 
 
-
+             
             // Add services to the container.
 
 
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var databaseUri = new Uri(databaseUrl);
-            //var databaseUri = new Uri("XXX"); // development:
+            //var databaseUri = new Uri("xxxx"); // development:
             var userInfo = databaseUri.UserInfo.Split(':');
 
             var npgConnBuilder = new NpgsqlConnectionStringBuilder

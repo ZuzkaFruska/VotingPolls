@@ -24,6 +24,7 @@ using Microsoft.AspNetCore.Routing.Patterns;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Components.Web;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
+using System.Security.Policy;
 
 namespace VotingPolls.Controllers
 {
@@ -149,9 +150,9 @@ namespace VotingPolls.Controllers
         
         public async Task<IActionResult> Share(int votingPollId) 
         {
-            var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, "https"); // protocol:Request.Scheme
-            var test = Request.Scheme;
-            TextCopy.ClipboardService.SetText(shareUrl);
+            //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
+            var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme); // protocol:Request.Scheme
+            //TextCopy.ClipboardService.SetText(shareUrl);
             return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
         }
 
