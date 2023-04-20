@@ -25,6 +25,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Components.Web;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 using System.Security.Policy;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace VotingPolls.Controllers
 {
@@ -68,10 +69,6 @@ namespace VotingPolls.Controllers
         [Authorize]
         public async Task<IActionResult> MyPolls()
         {
-            //if (shareUrl != null)
-            //{
-            //    ViewBag.Share = shareUrl;
-            //}
             TempData.Clear();
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
             var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetUserPollsAsync(currentUser.Id));
@@ -150,10 +147,18 @@ namespace VotingPolls.Controllers
         
         public async Task<IActionResult> Share(int votingPollId) 
         {
-            //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
-            var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme); // protocol:Request.Scheme
-            TextCopy.ClipboardService.SetText(shareUrl);
-            return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
+            try
+            {
+                //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
+                var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme); // protocol:Request.Scheme
+                TextCopy.ClipboardService.SetText(shareUrl);
+                return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error","Home",new { errorValue = ex});
+            }
+            
         }
 
 

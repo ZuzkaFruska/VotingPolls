@@ -27,8 +27,12 @@ namespace VotingPolls.Controllers
 
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
+        public IActionResult Error(string errorValue)
         {
+            if (errorValue != null)
+            {
+                ViewBag.errorValue = errorValue;
+            }
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }
