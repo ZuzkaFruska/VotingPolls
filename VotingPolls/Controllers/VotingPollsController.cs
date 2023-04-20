@@ -151,7 +151,7 @@ namespace VotingPolls.Controllers
             {
                 //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
                 var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme); // protocol:Request.Scheme
-                TextCopy.ClipboardService.SetText(shareUrl);
+                TextCopy.ClipboardService.SetText("ple ple ple");
                 return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
             }
             catch (Exception ex)
