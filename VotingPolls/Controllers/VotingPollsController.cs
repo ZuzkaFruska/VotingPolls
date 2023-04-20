@@ -72,6 +72,12 @@ namespace VotingPolls.Controllers
             TempData.Clear();
             var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
             var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetUserPollsAsync(currentUser.Id));
+
+            foreach (var votingPoll in model)
+            {
+                votingPoll.shareURL = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPoll.Id }, Request.Scheme);
+            }
+
             _context.ChangeTracker.Clear();
             return View(model);
         }
@@ -145,21 +151,21 @@ namespace VotingPolls.Controllers
             return View(model);
         }
         
-        public async Task<IActionResult> Share(int votingPollId) 
-        {
-            try
-            {
-                //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
-                var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme); // protocol:Request.Scheme
-                TextCopy.ClipboardService.SetText("ple ple ple");
-                return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
-            }
-            catch (Exception ex)
-            {
-                return RedirectToAction("Error","Home",new { errorValue = ex});
-            }
+        //public async Task<IActionResult> Share(int votingPollId) 
+        //{
+        //    try
+        //    {
+        //        //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
+        //        var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme);
+        //        TextCopy.ClipboardService.SetText("ple ple ple");
+        //        return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return RedirectToAction("Error","Home",new { errorValue = ex});
+        //    }
             
-        }
+        //}
 
 
         [HttpPost]

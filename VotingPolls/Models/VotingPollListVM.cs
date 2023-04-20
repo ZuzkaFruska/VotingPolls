@@ -9,6 +9,7 @@ namespace VotingPolls.Models
         public string Name { get; set; }
         public string Question { get; set; }
         public User Owner { get; set; }
+        public string shareURL { get; set; }
 
         [DisplayFormat(DataFormatString = "{0:yyyy-MM-dd}")]
         [DataType(DataType.Date)]

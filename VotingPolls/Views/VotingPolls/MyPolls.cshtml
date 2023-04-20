@@ -41,26 +41,48 @@
                             <i class="bi bi-trash3-fill"></i> &nbsp; Delete</a>
                         <a asp-action="Edit" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-dark border-light border-2 fw-bold me-1 float-end" style="color:lightgray">
                             <i class="bi bi-pencil-square"></i> &nbsp; Edit</a>
+
+
+
+                        <button OnClick="copyToClipboard('@votingPoll.Id')" class="btn btn-outline-dark border-light border-2 fw-bold me-1" style="color:lightgray">
+                                <i class="bi bi-share-fill"></i> &nbsp; Share
+                        </button>
                         
-                        <a asp-action="Share" asp-controller="VotingPolls" asp-route-votingPollId="@votingPoll.Id" class="btn btn-outline-dark border-light border-2 fw-bold me-1" style="color:lightgray">
-                            <i class="bi bi-share-fill"></i> &nbsp; Share</a>
+                        <p hidden id="@votingPoll.Id">@votingPoll.shareURL"</p>
+
                     </div>
                 </div>
             </div>
+            
         }
 </div>
 
-@*@section Scripts
+@section Scripts
 {
-    <script type="text/javascript">
-        @if (ViewBag.Share != null)
-        {
-            ViewData.Clear();
-            <text>
-                $(document).ready(function() {
-                alert('Url has been copied to the clipboard');
-                });
-            </text>
+   <script type="text/javascript">
+
+        function copyToClipboard(elementId) {
+
+            // Create a "hidden" input
+            var aux = document.createElement("input");
+
+            // Assign it the value of the specified element
+            aux.setAttribute("value", document.getElementById(elementId).innerHTML);
+
+            // Append it to the body
+            document.body.appendChild(aux);
+
+            // Highlight its content
+            aux.select();
+
+            // Copy the highlighted text
+            document.execCommand("copy");
+
+            // Remove it from the body
+            document.body.removeChild(aux);
+
         }
-    </script>
-}*@
+        
+
+    </script> 
+}
