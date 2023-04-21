@@ -81,7 +81,8 @@ namespace VotingPolls.Repositories
                 VotingPollId = votingPoll.Id,
                 AuthorId = currentUser.Id,
             });
-            await UpdateAsync(votingPoll);
+            await _context.SaveChangesAsync();
+            //await UpdateAsync(votingPoll);
         }
 
         public async Task<VotingPollCreateVM> GetPollTemplateAsync()
