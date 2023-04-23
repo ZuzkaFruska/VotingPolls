@@ -356,7 +356,7 @@ namespace VotingPolls.Controllers
         public async Task<IActionResult> DeleteConfirmed(int votingPollId)
         {
             await _votingPollRepository.DeleteAsync(votingPollId);
-            return RedirectToAction(nameof(NotAuthorized));
+            return RedirectToAction(nameof(MyPolls));
         }
 
         public IActionResult NotAuthorized()
