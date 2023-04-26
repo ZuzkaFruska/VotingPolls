@@ -70,8 +70,8 @@ namespace VotingPolls.Controllers
         public async Task<IActionResult> MyPolls()
         {
             TempData.Clear();
-            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-            var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetUserPollsAsync(currentUser.Id));
+            
+            var model = _mapper.Map<List<VotingPollListVM>>(await _votingPollRepository.GetUserPollsAsync());
 
             foreach (var votingPoll in model)
             {
@@ -84,19 +84,7 @@ namespace VotingPolls.Controllers
 
         public async Task<IActionResult> SharedPolls()
         {
-            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-            var userSharedPolls = await _context.VotingPolls.Join(
-                                                                    _context.VotingPollsUsers.Where(q => q.UserId == currentUser.Id),
-                                                                    vp => vp.Id,
-                                                                    vpu => vpu.VotingPollId,
-                                                                    (vp, vpu) => new VotingPoll
-                                                                    {
-                                                                        Id = vp.Id,
-                                                                        Name = vp.Name,
-                                                                        Question = vp.Question,
-                                                                        DateCreated = vp.DateCreated,
-                                                                        Owner= vp.Owner
-                                                                    }).ToListAsync();
+            var userSharedPolls = await _votingPollRepository.GetUserSharedPollsAsync();
             var model = _mapper.Map<List<VotingPollListVM>>(userSharedPolls);
             _context.ChangeTracker.Clear();
             return View(model);
@@ -107,18 +95,8 @@ namespace VotingPolls.Controllers
             public async Task<IActionResult> Vote(int votingPollId)
             {
                 var model = await _voteRepository.GetVotingDetails(votingPollId);
+                await _votingPollRepository.AddToSharedPolls(votingPollId);
 
-                var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
-                if (!_context.VotingPollsUsers.Any(q => q.UserId == currentUser.Id && q.VotingPollId == votingPollId)
-                    && currentUser.Id != model.VotingPollVM.OwnerId)
-                {
-                    await _context.VotingPollsUsers.AddAsync(new VotingPollUser
-                    {
-                        UserId = currentUser.Id,
-                        VotingPollId = votingPollId
-                    });
-                    await _context.SaveChangesAsync();
-                }
                 return View(model);
             }
 
@@ -151,22 +129,6 @@ namespace VotingPolls.Controllers
             return View(model);
         }
         
-        //public async Task<IActionResult> Share(int votingPollId) 
-        //{
-        //    try
-        //    {
-        //        //Uri shareUrl = new Uri("https://votingpolls.herokuapp.com/VotingPolls/Vote?votingPollId=2"); //Request.HttpContext.Connection.
-        //        var shareUrl = Url.Action(nameof(Vote), "VotingPolls", new { votingPollId = votingPollId }, Request.Scheme);
-        //        TextCopy.ClipboardService.SetText("ple ple ple");
-        //        return RedirectToAction(nameof(MyPolls)); // new { shareUrl = shareUrl }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        return RedirectToAction("Error","Home",new { errorValue = ex});
-        //    }
-            
-        //}
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -265,6 +227,7 @@ namespace VotingPolls.Controllers
         public async Task<IActionResult> Results(int votingPollId)
         {
             var model = await _votingPollRepository.GetVotingResults(votingPollId);
+
             return View(model);
         }
 
@@ -367,9 +330,3 @@ namespace VotingPolls.Controllers
 
     }
 }
-
-
-
-
-
-// Referer = Request.Headers.Referer.ToString();

@@ -10,8 +10,10 @@ namespace VotingPolls.Contracts
         Task AddAnswerWhileVotingAsync(int votingPollId, string newAnswerValue);
         Task ApplyChangesAndSave(VotingPollEditVM votingPollEditVM);
         Task<VotingPoll> GetPollWithAnswersAndVotesAsync(int votingPollId);
-        Task<List<VotingPoll>> GetUserPollsAsync(string userId);
+        Task<List<VotingPoll>> GetUserPollsAsync();
+        Task<List<VotingPoll>> GetUserSharedPollsAsync();
         Task<VotingPollCreateVM> GetPollTemplateAsync();
+        Task AddToSharedPolls(int votingPollId);
         Task<ResultsVM> GetVotingResults(int votingPollId);
         Task<VotingPollCreateVM> RemoveAnswerWhileCreateOrEditAsync(VotingPollCreateVM votingPollCreateVM, int answerNo);
         

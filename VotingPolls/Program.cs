@@ -19,7 +19,7 @@ namespace VotingPolls
 
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var databaseUri = new Uri(databaseUrl);
-            //var databaseUri = new Uri("xxxx"); // development:
+            //var databaseUri = new Uri("xxx"); // development:
             var userInfo = databaseUri.UserInfo.Split(':');
 
             var npgConnBuilder = new NpgsqlConnectionStringBuilder
@@ -55,6 +55,7 @@ namespace VotingPolls
             builder.Services.AddScoped<IVotingPollRepository, VotingPollRepository>();
             builder.Services.AddScoped<IAnswerRepository, AnswerRepository>();
             builder.Services.AddScoped<IVoteRepository, VoteRepository>();
+            builder.Services.AddScoped<ICommentRepository, CommentRepository>();
 
             builder.Services.AddAutoMapper(typeof(MapperConfig));
 

@@ -63,10 +63,29 @@ namespace VotingPolls.Repositories
         }
 
 
-        public async Task<List<VotingPoll>> GetUserPollsAsync(string userId)
+        public async Task<List<VotingPoll>> GetUserPollsAsync()
         {
-            var userPolls = await _context.VotingPolls.AsNoTracking().Where(q => q.OwnerId== userId).ToListAsync();
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userPolls = await _context.VotingPolls.AsNoTracking().Where(q => q.OwnerId== currentUser.Id).ToListAsync();
             return userPolls;
+        }
+
+        public async Task<List<VotingPoll>> GetUserSharedPollsAsync()
+        {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var userSharedPolls = await _context.VotingPolls.Join(
+                                                                    _context.VotingPollsUsers.Where(q => q.UserId == currentUser.Id),
+                                                                    vp => vp.Id,
+                                                                    vpu => vpu.VotingPollId,
+                                                                    (vp, vpu) => new VotingPoll
+                                                                    {
+                                                                        Id = vp.Id,
+                                                                        Name = vp.Name,
+                                                                        Question = vp.Question,
+                                                                        DateCreated = vp.DateCreated,
+                                                                        Owner = vp.Owner
+                                                                    }).ToListAsync();
+            return userSharedPolls;
         }
 
         public async Task AddAnswerWhileVotingAsync(int votingPollId, string newAnswerValue)
@@ -141,6 +160,16 @@ namespace VotingPolls.Repositories
                 }
             }
 
+            model.Comments = await _context.Comments.Where(q => q.VotingPollId == votingPollId).ToListAsync();
+            if (model.Comments != null)
+            {
+                foreach (var comment in model.Comments)
+                {
+                    comment.Author = await _userManager.FindByIdAsync(comment.AuthorId);
+                }
+            }
+            
+
             model.UserAlreadyVoted = model.VotingPollVM.Votes.Any(v => v.VoterId == currentUser.Id) ? true : false;
             model.VotingPollVM.Answers = model.VotingPollVM.Answers.OrderByDescending(a => a.Votes.Count).ToList();
 
@@ -185,6 +214,23 @@ namespace VotingPolls.Repositories
             _mapper.Map(model, votingPoll);
             // var votingPoll = _mapper.Map<VotingPoll>(model);
             await UpdateAsync(votingPoll);
+        }
+
+        public async Task AddToSharedPolls(int votingPollId)
+        {
+            var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
+            var votingPoll = await GetAsync(votingPollId);
+
+            if (!_context.VotingPollsUsers.Any(q => q.UserId == currentUser.Id && q.VotingPollId == votingPollId)
+                && currentUser.Id != votingPoll.OwnerId)
+            {
+                await _context.VotingPollsUsers.AddAsync(new VotingPollUser
+                {
+                    UserId = currentUser.Id,
+                    VotingPollId = votingPollId
+                });
+                await _context.SaveChangesAsync();
+            }
         }
     }
 }
