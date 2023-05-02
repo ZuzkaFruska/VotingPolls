@@ -38,13 +38,16 @@ namespace VotingPolls.Repositories
             if (votingPollId == null)
                 return null;
 
+
             var votingPoll = await _context.VotingPolls.FirstAsync(v => v.Id == votingPollId);
+
+
             votingPoll.Answers = await _context.Answers.Where(q => q.VotingPollId == votingPollId).ToListAsync();
             votingPoll.Votes = await _context.Votes.Where(q => q.VotingPollId == votingPollId).ToListAsync();
 
             foreach (var answer in votingPoll.Answers)
             {
-                answer.Votes =  await _context.Votes.Where(q => q.AnswerId == answer.Id).ToListAsync();
+                answer.Votes = await _context.Votes.Where(q => q.AnswerId == answer.Id).ToListAsync();
                 answer.Author = await _context.Users.FirstAsync(q => q.Id == answer.AuthorId);
             }
 
@@ -101,7 +104,6 @@ namespace VotingPolls.Repositories
                 AuthorId = currentUser.Id,
             });
             await _context.SaveChangesAsync();
-            //await UpdateAsync(votingPoll);
         }
 
         public async Task<VotingPollCreateVM> GetPollTemplateAsync()
@@ -182,27 +184,6 @@ namespace VotingPolls.Repositories
 
             foreach (var oldAnswer in oldAnswers)
             {
-                //if (model.Answers.Any(a => a.Id == oldAnswer.Id)) //if this old answer still exist
-                //{
-                //    foreach (var answer in model.Answers)
-                //    {
-                //        if (answer.Id == oldAnswer.Id && answer.Text == oldAnswer.Text) //answer unchanged
-                //        {
-                //            answer.DateCreated = oldAnswer.DateCreated;
-                //            answer.DateModified = oldAnswer.DateModified;
-                //        }
-                //        else if (answer.Id == oldAnswer.Id && answer.Text != oldAnswer.Text) //answer was changed
-                //        {
-                //            answer.DateCreated = oldAnswer.DateCreated;
-                //            answer.DateModified = DateTime.Now;
-                //        }
-                //    }
-                //}
-                //else //this old answer was removed
-                //{
-                //    await _answerRepository.DeleteAsync(oldAnswer.Id);
-                //}
-
                 if (!model.Answers.Any(a => a.Id == oldAnswer.Id)) // old answer was removed
                 {
                     await _answerRepository.DeleteAsync(oldAnswer.Id);
@@ -212,7 +193,6 @@ namespace VotingPolls.Repositories
             var votingPoll = await GetAsync(model.Id);
             votingPoll.Answers = await _answerRepository.GetVotingPollAnswers(model.Id);
             _mapper.Map(model, votingPoll);
-            // var votingPoll = _mapper.Map<VotingPoll>(model);
             await UpdateAsync(votingPoll);
         }
 

@@ -19,14 +19,17 @@ namespace VotingPolls.Controllers
         private readonly ApplicationDbContext _context;
         private readonly IVotingPollRepository _votingPollRepository;
         private readonly ICommentRepository _commentRepository;
+        private readonly UserManager<User> _userManager;
 
         public CommentsController(ApplicationDbContext context,
                                   IVotingPollRepository votingPollRepository,
-                                  ICommentRepository commentRepository)
+                                  ICommentRepository commentRepository,
+                                  UserManager<User> userManager)
         {
             _context = context;
             this._votingPollRepository = votingPollRepository;
             this._commentRepository = commentRepository;
+            this._userManager = userManager;
         }
 
 
@@ -53,121 +56,24 @@ namespace VotingPolls.Controllers
             return View("../../Views/VotingPolls/Results", modelWithError);
         }
 
-        //// POST: Comments/Create
-        //// To protect from overposting attacks, enable the specific properties you want to bind to.
-        //// For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        //[HttpPost]
-        //[ValidateAntiForgeryToken]
-        //public async Task<IActionResult> Create([Bind("Text,VotingPollId,AuthorId,Id,DateCreated,DateModified")] Comment comment)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        _context.Add(comment);
-        //        await _context.SaveChangesAsync();
-        //        return RedirectToAction(nameof(Index));
-        //    }
-        //    ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Id", comment.AuthorId);
-        //    ViewData["VotingPollId"] = new SelectList(_context.VotingPolls, "Id", "Id", comment.VotingPollId);
-        //    return View(comment);
-        //}
-
-        // GET: Comments/Edit/5
-        public async Task<IActionResult> Edit(int? id)
-        {
-            if (id == null || _context.Comments == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Id", comment.AuthorId);
-            ViewData["VotingPollId"] = new SelectList(_context.VotingPolls, "Id", "Id", comment.VotingPollId);
-            return View(comment);
-        }
-
-        // POST: Comments/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to.
-        // For more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Text,VotingPollId,AuthorId,Id,DateCreated,DateModified")] Comment comment)
-        {
-            if (id != comment.Id)
-            {
-                return NotFound();
-            }
-
-            if (ModelState.IsValid)
-            {
-                try
-                {
-                    _context.Update(comment);
-                    await _context.SaveChangesAsync();
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!CommentExists(comment.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
-            }
-            ViewData["AuthorId"] = new SelectList(_context.Users, "Id", "Id", comment.AuthorId);
-            ViewData["VotingPollId"] = new SelectList(_context.VotingPolls, "Id", "Id", comment.VotingPollId);
-            return View(comment);
-        }
-
-        // GET: Comments/Delete/5
-        public async Task<IActionResult> Delete(int? id)
-        {
-            if (id == null || _context.Comments == null)
-            {
-                return NotFound();
-            }
-
-            var comment = await _context.Comments
-                .Include(c => c.Author)
-                .Include(c => c.VotingPoll)
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (comment == null)
-            {
-                return NotFound();
-            }
-
-            return View(comment);
-        }
 
         // POST: Comments/Delete/5
-        [HttpPost, ActionName("Delete")]
+        [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Delete(int commentId)
         {
-            if (_context.Comments == null)
+
+            var currentUser = await _userManager.FindByNameAsync(User.Identity.Name);
+            var votingPollId = (await _commentRepository.GetAsync(commentId)).VotingPollId;
+
+            if (!_context.Comments.Any(q => q.Id == commentId && q.AuthorId == currentUser.Id))
             {
-                return Problem("Entity set 'ApplicationDbContext.Comments'  is null.");
+                return RedirectToAction("NotAuthorized", "Home");
             }
-            var comment = await _context.Comments.FindAsync(id);
-            if (comment != null)
-            {
-                _context.Comments.Remove(comment);
-            }
-            
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+
+            await _commentRepository.DeleteAsync(commentId);
+            return RedirectToAction("Results", "VotingPolls", new { votingPollId = votingPollId });
         }
 
-        private bool CommentExists(int id)
-        {
-          return (_context.Comments?.Any(e => e.Id == id)).GetValueOrDefault();
-        }
     }
 }

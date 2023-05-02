@@ -19,7 +19,7 @@ namespace VotingPolls
 
             var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
             var databaseUri = new Uri(databaseUrl);
-            //var databaseUri = new Uri("xxx"); // development:
+            //var databaseUri = new Uri("xxx"); // for development:
             var userInfo = databaseUri.UserInfo.Split(':');
 
             var npgConnBuilder = new NpgsqlConnectionStringBuilder

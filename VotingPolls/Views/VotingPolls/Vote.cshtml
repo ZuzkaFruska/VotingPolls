@@ -11,8 +11,8 @@
 <div class="container col-9 text-light custom-bg-gray-dark p-4 box-shadow-light-outset">
     <form asp-action="Vote" asp-controller="VotingPolls">
         <div>
-            <h3 class="card-title">@Model.VotingPollVM.Name</h3>
-            <h3 class="card-subtitle fw-normal">@Model.VotingPollVM.Question</h3>
+            <h4 class="card-title">@Model.VotingPollVM.Name</h4>
+            <h4 class="card-subtitle fw-normal">@Model.VotingPollVM.Question</h4>
             <span asp-validation-for="UserAnswers" class="text-danger"></span>
         </div>
         <br/>
@@ -35,30 +35,28 @@
         }
         <br/><br/><br/>
         </div>
-        <input type="submit" asp-action="Vote" value=@buttonValue class="custom-btn custom-btn-outline-gray"/>
+        
+        <button type="submit" class="custom-btn custom-btn-outline-gray" asp-controller="VotingPolls" asp-action="Vote">
+            <i class="bi bi-star-fill"></i>  @buttonValue
+        </button>
+
+
         @if (Model.UserAlreadyVoted)
         {
-            <a class="custom-btn custom-btn-outline-gray" asp-action="Results" asp-route-votingPollId="@Model.VotingPollVM.Id"><i class="bi bi-bar-chart-fill"></i> &nbsp; Results</a>
+            <a class="custom-btn custom-btn-outline-gray ms-3" asp-action="Results" asp-route-votingPollId="@Model.VotingPollVM.Id"><i class="bi bi-bar-chart-fill"></i>  Results</a>
             <a asp-action="DeleteUserPollVotes" asp-controller="VotingPolls">
-                <button type="submit" class="custom-btn custom-btn-outline-gray" asp-controller="VotingPolls" asp-action="DeleteUserPollVotes" asp-route-actionName="Vote" asp-route-votingPollId="@Model.VotingPollVM.Id">
-                    <i class="bi bi-trash3-fill"></i> &nbsp; Delete my votes
+                <button type="submit" class="custom-btn custom-btn-outline-gray ms-3" asp-controller="VotingPolls" asp-action="DeleteUserPollVotes" asp-route-actionName="Vote" asp-route-votingPollId="@Model.VotingPollVM.Id">
+                    <i class="bi bi-trash3-fill"></i>  Delete my votes
                 </button>
             </a>
         }
 
-        <a asp-controller="VotingPolls" asp-action="MyPolls" class="custom-btn custom-btn-outline-gray float-end" ><i class="bi bi-arrow-return-left"></i> &nbsp; Back to List</a>
+        <a asp-controller="VotingPolls" asp-action="MyPolls" class="custom-btn custom-btn-outline-gray float-end" ><i class="bi bi-arrow-return-left"></i>  Back to List</a>
 
         <input type="hidden" asp-for="VoterId"/>
         <input type="hidden" asp-for="VotingPollVM.Id"/>
         <input type="hidden" asp-for="UserAlreadyVoted"/>
     </form>
-
-    
-
 </div>
 
 
-@*can't use non-boolean property in the asp-for attribute of an input tag helper,
-Razor renders an input whose type is set to text,/
-so you must use plain HTML to render checkboxes that enable binding to a simple collection
-*@

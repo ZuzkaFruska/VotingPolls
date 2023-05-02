@@ -11,8 +11,8 @@ namespace VotingPolls.Models
 {
     public class VotingVM : IValidatableObject
     {
-        public VotingPollVM VotingPollVM { get; set; } //nullable?
-        public string VoterId { get; set; }          // User that votes
+        public VotingPollVM VotingPollVM { get; set; }
+        public string VoterId { get; set; }          
         public bool UserAlreadyVoted { get; set; }
 
         

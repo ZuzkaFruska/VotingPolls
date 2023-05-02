@@ -35,10 +35,6 @@ namespace VotingPolls.Repositories
 
             await AddAsync(comment);
 
-
-            //_context.ChangeTracker.Clear();
-            //var comment = _context.Comments.ToList().Last();
-
             await _context.VotingPollsComments.AddAsync(new VotingPollComment
             {
                 VotingPollId = votingPollId,

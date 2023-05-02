@@ -15,7 +15,6 @@ namespace VotingPolls.Models
         [DataType(DataType.Date)]
         public DateTime DateCreated { get; set; }
 
-        //public User User { get; set; }
 
     }
 }

@@ -38,7 +38,6 @@ namespace VotingPolls.Repositories
         public async Task<VotingVM> GetVotingDetails(int votingPollId)
         {
             var votingPoll = _mapper.Map<VotingPollVM>( await _votingPollRepository.GetPollWithAnswersAndVotesAsync(votingPollId) );
-            // czy mapowanie dodaje również odpowiedzi i głosy?
             var model = new VotingVM() { VotingPollVM = votingPoll };
             var currentUser = await _userManager.GetUserAsync(_httpContextAccessor.HttpContext.User);
             model.VoterId = currentUser.Id;

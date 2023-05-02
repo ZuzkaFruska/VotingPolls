@@ -34,26 +34,28 @@
         {
             <div class="col-12">
                 <label asp-for="Name" class="form-label">Voting Poll Name</label>
-                <input readonly type="text" asp-for="Name" class="form-control text-light bg-transparent custom-border-gray mb-1" value="@Model.Name"/>
+                <input readonly type="text" asp-for="Name" class="form-control text-light custom-bg-dark border-0 custom-border-r15 mb-1" value="@Model.Name"
+                    style="background-color:#212529"/>
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
             <div class="col-12">
                 <label asp-for="Question" class="form-label mt-3">Voting Poll Question</label>
-                <input readonly type="text" asp-for="Question" class="form-control text-light bg-transparent custom-border-gray" value="@Model.Question" />
+                <input readonly type="text" asp-for="Question" class="form-control text-light custom-bg-dark border-0 custom-border-r15" value="@Model.Question"
+                    style="background-color:#212529"/>
                     <span asp-validation-for="Question" class="text-danger"></span>
             </div>
         }else
         {
             <div class="col-12">
                 <label asp-for="Name" class="form-label">Voting Poll Name</label>
-                <input type="text" asp-for="Name" class="form-control text-light bg-transparent custom-border-gray mb-1" value="@Model.Name"/>
+                <input type="text" asp-for="Name" class="form-control text-light custom-bg-dark border-0 custom-border-r15 mb-1" value="@Model.Name"/>
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
             <div class="col-12">
                 <label asp-for="Question" class="form-label mt-3">Voting Poll Question</label>
-                <input type="text" asp-for="Question" class="form-control text-light bg-transparent custom-border-gray" value="@Model.Question" />
-                    <span asp-validation-for="Question" class="text-danger"></span>
+                <input type="text" asp-for="Question" class="form-control text-light custom-bg-dark border-0 custom-border-r15" value="@Model.Question" />
+                <span asp-validation-for="Question" class="text-danger"></span>
             </div>
         }
         
@@ -70,15 +72,17 @@
                         </div>
                         <div class="row">
                             <div class="col-11">
-                                <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-transparent custom-border-gray" value="@Model.Answers[i].Text" />
+                                <input type="text" asp-for="Answers[i].Text" class="form-control text-light custom-bg-dark border-0 custom-border-r15" value="@Model.Answers[i].Text" />
                                 <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                                 <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.CurrentUserId"/>
                                 <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
                             </div>
                                 <div class="col-1">
-                                    <button type="submit" asp-action="RemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="custom-btn custom-btn-outline-gray float-end">
-                                        <i class="bi bi-trash3-fill"></i>
-                                    </button>
+                                    <div class="row h-100 align-items-center">
+                                        <button type="submit" asp-action="RemoveAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" asp-route-answerNo="@(i)" class="custom-btn custom-btn-outline-gray w-auto ms-2 float-end">
+                                            <i class="bi bi-trash3-fill"></i>                                                                                                                       
+                                        </button>
+                                    </div>
                                 </div>
                         </div>
                     }else
@@ -93,7 +97,8 @@
                         </div>
                         <div class="row mb-2">
                             <div class="col-11">
-                                <input readonly type="text" asp-for="Answers[i].Text" class="form-control text-light bg-transparent custom-border-gray" value="@Model.Answers[i].Text" />
+                                <input readonly type="text" asp-for="Answers[i].Text" class="form-control text-light custom-bg-dark border-0 custom-border-r15" value="@Model.Answers[i].Text"
+                                    style="background-color:#212529"/>
                                 <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                                 <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.CurrentUserId"/>
                                 <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
@@ -115,7 +120,8 @@
                     </div>
                     <div class="row">
                         <div class="col-11">
-                            <input type="text" asp-for="Answers[i].Text" class="form-control text-light bg-transparent custom-border-gray" value="@Model.Answers[i].Text" readonly/>
+                            <input readonly type="text" asp-for="Answers[i].Text" class="form-control text-light custom-bg-dark border-0 custom-border-r15" value="@Model.Answers[i].Text"
+                                style="background-color:#212529"/>
                             <input type="hidden" asp-for="Answers[i].Number" value="@i" />
                             <input type="hidden" asp-for="Answers[i].AuthorId" value="@Model.Answers[i].AuthorId"/>
                             <input type="hidden" asp-for="Answers[i].Id" value="@Model.Answers[i].Id"/>
@@ -129,15 +135,15 @@
             </div>
         }
 
-        <button type="submit" asp-action="AddAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" class="custom-btn custom-btn-outline-gray mt-3">
-            <i class="bi bi-plus-lg"></i>
+        <button type="submit" asp-action="AddAnswer_CreateEdit" asp-route-actionName="Edit" asp-route-votingPollId="@Model.Id" class="custom-btn custom-btn-outline-gray">
+            <h1 class="p-0 m-0" style="font-weight:800">+</h1>
         </button>
         <br/><br/>
 
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input custom-border-gray bg-transparent fw-bold"  asp-for="MultipleChoice" /> Multiple choice answers allowed
+                    <input class="form-check-input custom-bg-dark border-0 fw-bold"  asp-for="MultipleChoice" /> Multiple choice answers allowed
                 </label>
             </div>
         </div>
@@ -146,7 +152,7 @@
         <div class="form-group">
             <div class="form-check">
                 <label class="form-check-label">
-                    <input class="form-check-input custom-border-gray bg-transparent fw-bold"  asp-for="AdditionalAnswers" /> Users can add new answers
+                    <input class="form-check-input custom-bg-dark border-0 fw-bold"  asp-for="AdditionalAnswers" /> Users can add new answers
                 </label>
             </div>
         </div>
@@ -155,10 +161,10 @@
 
         <div class="form-group">
             <button type="submit" class="custom-btn custom-btn-outline-gray">
-                <i class="bi bi-check-lg"></i> &nbsp; Save changes
+                <i class="bi bi-check-lg"></i>  Save changes
             </button>
             <a asp-action="MyPolls" class="custom-btn custom-btn-outline-gray float-end">
-                <i class="bi bi-arrow-return-left"></i> &nbsp; Back to List
+                <i class="bi bi-arrow-return-left"></i>  Back to List
             </a>
         </div>
     </form>

@@ -24,6 +24,12 @@ namespace VotingPolls.Controllers
             TempData.Clear();
             return View();
         }
+
+        public IActionResult NotAuthorized()
+        {
+            return View();
+        }
+
         public IActionResult ContactUs()
         {
             TempData.Clear();

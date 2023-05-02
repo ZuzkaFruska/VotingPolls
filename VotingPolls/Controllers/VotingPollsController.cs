@@ -240,7 +240,7 @@ namespace VotingPolls.Controllers
 
             if (!_context.VotingPolls.Any(q => q.Id == votingPollId && q.OwnerId == currentUser.Id))
             {
-                return RedirectToAction(nameof(NotAuthorized));
+                return RedirectToAction("NotAuthorized", "Home");
             }
 
             if (TempData.IsNullOrEmpty()) 
@@ -305,7 +305,7 @@ namespace VotingPolls.Controllers
 
             if (!_context.VotingPolls.Any(q => q.Id == votingPollId && q.OwnerId == currentUser.Id))
             {
-                return RedirectToAction(nameof(NotAuthorized));
+                return RedirectToAction("NotAuthorized", "Home");
             }
 
             var model = await _votingPollRepository.GetVotingResults(votingPollId);
@@ -322,10 +322,7 @@ namespace VotingPolls.Controllers
             return RedirectToAction(nameof(MyPolls));
         }
 
-        public IActionResult NotAuthorized()
-        {
-            return View();
-        }
+        
 
 
     }
